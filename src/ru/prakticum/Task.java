@@ -16,4 +16,13 @@ public class Task {
         this.status = Status.NEW;
     }
 
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", status=" + status +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

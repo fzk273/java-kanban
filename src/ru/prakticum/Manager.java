@@ -28,6 +28,10 @@ public class Manager {
     public SubTask createSubtask(String name, String description, Integer epicId) {
         SubTask subTask = new SubTask(counter, name, description, epicId);
         subtasks.put(counter, subTask);
+        Epic epicToUpdate = getEpicById(epicId);
+        ArrayList<Integer> subtasksIds = epicToUpdate.getSubtaskIds();
+        subtasksIds.add(counter);
+        updateEpic(epicToUpdate);
         counter++;
         return subTask;
     }
@@ -39,7 +43,7 @@ public class Manager {
         return epic;
     }
 
-    public ArrayList getTasks() {
+    public ArrayList<Task> getTasks() {
         ArrayList tasksArray = new ArrayList<Task>();
         for (Task value : tasks.values()) {
             tasksArray.add(value);
@@ -47,7 +51,7 @@ public class Manager {
         return tasksArray;
     }
 
-    public ArrayList getSubtasks() {
+    public ArrayList<SubTask> getSubtasks() {
         ArrayList subtasksArray = new ArrayList<SubTask>();
         for (SubTask value : subtasks.values()) {
             subtasksArray.add(value);
@@ -55,7 +59,7 @@ public class Manager {
         return subtasksArray;
     }
 
-    public ArrayList getEpics() {
+    public ArrayList<Epic> getEpics() {
         ArrayList epicsArray = new ArrayList<Epic>();
         for (Epic value : epics.values()) {
             epicsArray.add(value);
@@ -74,7 +78,9 @@ public class Manager {
     public Epic getEpicById(Integer id) {
         return epics.get(id);
     }
-
+    // All these boolean methods should be void. i made them boolean on purpose.
+    // as i expect this project will be modified to rest api. in this case it would be easier to refactor
+    // because i will know where should i put response codes
     public boolean deleteTasks() {
         tasks.clear();
         return true;
@@ -98,7 +104,12 @@ public class Manager {
     }
 
     public boolean deleteSubtaskById(Integer id) {
+        SubTask subTask = getSubtaskById(id);
+        Epic epic = getEpicById(subTask.getEpicId());
+        ArrayList<Integer> subtasksIds = epic.getSubtaskIds();
+        subtasksIds.remove(id);
         subtasks.remove(id);
+        updateEpic(epic);
         return true;
     }
 
@@ -144,14 +155,14 @@ public class Manager {
             boolean allTasksAreNew = true;
             boolean allTasksAreDone = true;
             for (SubTask subTask : epicsSubtasks) {
-                if (!subTask.getStatus().equals(Status.NEW)){
+                if (!subTask.getStatus().equals(Status.NEW)) {
                     allTasksAreNew = false;
                 }
-                if (!subTask.getStatus().equals(Status.DONE)){
+                if (!subTask.getStatus().equals(Status.DONE)) {
                     allTasksAreDone = false;
                 }
             }
-            if (allTasksAreDone){
+            if (allTasksAreDone) {
                 epic.setStatus(Status.DONE);
             } else if (allTasksAreNew) {
                 epic.setStatus(Status.NEW);

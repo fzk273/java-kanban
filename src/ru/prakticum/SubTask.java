@@ -1,6 +1,6 @@
 package ru.prakticum;
 
-public class SubTask extends Task{
+public class SubTask extends Task {
     private Integer epicId;
 
     public SubTask(Integer id, String name, String description, Integer epicId) {
@@ -14,7 +14,11 @@ public class SubTask extends Task{
 
     @Override
     public String toString() {
-        return super.toString() + " SubTask{" +
+        return "SubTask{" +
+                "id=" + super.getId() +
+                ", status=" + super.getStatus() +
+                ", name='" + super.getName() + '\'' +
+                ", description='" + super.getDescription() + '\'' +
                 "epicId=" + epicId +
                 "} ";
     }

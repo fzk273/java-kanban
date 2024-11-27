@@ -10,6 +10,11 @@ public class Epic extends Task {
         subtaskIds = new ArrayList<Integer>();
     }
 
+
+    public ArrayList getSubtaskIds() {
+        return subtaskIds;
+    }
+
     @Override
     public String toString() {
         return super.toString() + " Epic{" +

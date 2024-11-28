@@ -1,4 +1,4 @@
-package ru.prakticum;
+package ru.prakticum.tasks;
 
 
 import ru.prakticum.enums.Status;
@@ -11,8 +11,7 @@ public class Task {
     private String name;
     private String description;
 
-    public Task(Integer id, String name, String description) {
-        this.id = id;
+    public Task(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
@@ -34,9 +33,10 @@ public class Task {
         return description;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Integer id) {
+        this.id = id;
     }
+
 
     public void setDescription(String description) {
         this.description = description;

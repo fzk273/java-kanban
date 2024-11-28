@@ -1,6 +1,9 @@
-package ru.prakticum;
+package ru.prakticum.interfaces;
 
 import ru.prakticum.enums.Status;
+import ru.prakticum.tasks.Epic;
+import ru.prakticum.tasks.SubTask;
+import ru.prakticum.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,53 +21,45 @@ public class Manager {
         epics = new HashMap();
     }
 
-    public Task createTask(String name, String description) {
-        Task task = new Task(counter, name, description);
+    public Task createTask(Task task) {
+        task.setId(counter);
         tasks.put(counter, task);
         counter++;
         return task;
     }
 
-    public SubTask createSubtask(String name, String description, Integer epicId) {
-        SubTask subTask = new SubTask(counter, name, description, epicId);
-        subtasks.put(counter, subTask);
-        Epic epicToUpdate = getEpicById(epicId);
-        ArrayList<Integer> subtasksIds = epicToUpdate.getSubtaskIds();
-        subtasksIds.add(counter);
-        updateEpic(epicToUpdate);
-        counter++;
+    public SubTask createSubtask(SubTask subTask) {
+        if (getEpicById(subTask.getEpicId()) != null) {
+            subTask.setId(counter);
+            subtasks.put(counter, subTask);
+            Epic epicToUpdate = getEpicById(subTask.getEpicId());
+            ArrayList<Integer> subtasksIds = epicToUpdate.getSubtaskIds();
+            subtasksIds.add(counter);
+            updateEpic(epicToUpdate);
+            counter++;
+        } else {
+            System.out.println("ERROR: There is no epic with id: " + subTask.getEpicId());
+        }
         return subTask;
     }
 
-    public Epic createEpic(String name, String description) {
-        Epic epic = new Epic(counter, name, description);
+    public Epic createEpic(Epic epic) {
+        epic.setId(counter);
         epics.put(counter, epic);
         counter++;
         return epic;
     }
 
     public ArrayList<Task> getTasks() {
-        ArrayList tasksArray = new ArrayList<Task>();
-        for (Task value : tasks.values()) {
-            tasksArray.add(value);
-        }
-        return tasksArray;
+        return new ArrayList<>(tasks.values());
     }
 
     public ArrayList<SubTask> getSubtasks() {
-        ArrayList subtasksArray = new ArrayList<SubTask>();
-        for (SubTask value : subtasks.values()) {
-            subtasksArray.add(value);
-        }
-        return subtasksArray;
+        return new ArrayList<>(subtasks.values());
     }
 
     public ArrayList<Epic> getEpics() {
-        ArrayList epicsArray = new ArrayList<Epic>();
-        for (Epic value : epics.values()) {
-            epicsArray.add(value);
-        }
-        return epicsArray;
+        return new ArrayList<>(epics.values());
     }
 
     public Task getTaskById(Integer id) {
@@ -78,64 +73,75 @@ public class Manager {
     public Epic getEpicById(Integer id) {
         return epics.get(id);
     }
-    // All these boolean methods should be void. i made them boolean on purpose.
-    // as i expect this project will be modified to rest api. in this case it would be easier to refactor
-    // because i will know where should i put response codes
+
     public boolean deleteTasks() {
         tasks.clear();
-        return true;
+        return tasks.isEmpty();
     }
 
     public boolean deleteSubtasks() {
-        subtasks.clear();
-        //TODO implement status check
-        return true;
+        //TODO i dont know how it could be implemented better. need help
+        for (SubTask subTask : subtasks.values()) {
+            Integer subTaskId = subTask.getId();
+            Integer epicId = subTask.getEpicId();
+            String epicName = epics.get(epicId).getName();
+            String epicDescription = epics.get(epicId).getDescription();
+            ArrayList<Integer> epicSubtasks = epics.get(epicId).getSubtaskIds();
+            epicSubtasks.remove(subTaskId);
+            Epic epic = new Epic(epicName, epicDescription);
+            epic.getSubtaskIds().addAll(epicSubtasks);
+            deleteSubtaskById(subTaskId);
+            updateEpic(epic);
+
+        }
+        return subtasks.isEmpty();
     }
 
     public boolean deleteEpics() {
+        for (Epic epic : epics.values()) {
+            for (Integer id : epic.getSubtaskIds()) {
+                if (getSubtaskById(id) != null) {
+                    deleteSubtaskById(id);
+                    //TODO im not sure should i do an epic status check after deletion of a subtask???
+                } else {
+                    System.out.println("ERROR: There is no subtask with id: " + id);
+                }
+            }
+        }
         epics.clear();
-        //TODO ???implement deletion of subtasks???
-        return true;
+        return epics.isEmpty();
     }
 
-    public boolean deleteTaskByID(Integer id) {
+    public void deleteTaskByID(Integer id) {
         tasks.remove(id);
-        return true;
     }
 
-    public boolean deleteSubtaskById(Integer id) {
+    public void deleteSubtaskById(Integer id) {
         SubTask subTask = getSubtaskById(id);
         Epic epic = getEpicById(subTask.getEpicId());
-        ArrayList<Integer> subtasksIds = epic.getSubtaskIds();
-        subtasksIds.remove(id);
+        epic.getSubtaskIds().remove(id);
         subtasks.remove(id);
         updateEpic(epic);
-        return true;
     }
 
-    public boolean deleteEpicById(Integer id) {
-        ArrayList<SubTask> epicSubtasks = getEpicSubtasks(getEpicById(id));
-        for (SubTask subtask : epicSubtasks) {
-            deleteSubtaskById(subtask.getId());
-        }
+    public void deleteEpicById(Integer id) {
+        //TODO i removed the logic for subtask deletion, but in this case all subtasks gonna be without parent
         epics.remove(id);
-        return true;
     }
 
-    public boolean updateTask(Task task) {
+    public void updateTask(Task task) {
         tasks.put(task.getId(), task);
-        return true;
     }
 
-    public boolean updateSubtask(SubTask subtask) {
+    public void updateSubtask(SubTask subtask) {
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(getEpicById(subtask.getEpicId()));
-        return true;
     }
 
-    public boolean updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) {
+        //TODO I dont agree with updating name and description. i still need to update subtasks ids in some cases and
+        // this leads to update all fields in the instance. its easier to do it the way its implemented now.
         epics.put(epic.getId(), epic);
-        return true;
     }
 
     public ArrayList<SubTask> getEpicSubtasks(Epic epic) {

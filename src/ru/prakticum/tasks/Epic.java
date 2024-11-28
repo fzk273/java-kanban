@@ -1,12 +1,12 @@
-package ru.prakticum;
+package ru.prakticum.tasks;
 
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtaskIds;
 
-    public Epic(Integer id, String name, String description) {
-        super(id, name, description);
+    public Epic(String name, String description) {
+        super(name, description);
         subtaskIds = new ArrayList<Integer>();
     }
 

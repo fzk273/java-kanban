@@ -7,7 +7,7 @@
       <x>368</x>
       <y>208</y>
       <w>256</w>
-      <h>848</h>
+      <h>960</h>
     </coordinates>
     <panel_attributes>Manager
 --
@@ -17,31 +17,32 @@
 -subtasks: HashMap
 --
 
--createTask()
--createEpic()
--createSubtask()
++createTask()
++createEpic()
++createSubtask()
 
--getTasks()
--getEpics()
--getSubtasks()
++getTasks()
++getEpics()
++getSubtasks()
 
--getTaskById()
--getEpicById()
--getSubtaskById()
++getTaskById()
++getEpicById()
++getSubtaskById()
 
--deleteTasks()
--deleteEpics()
--deleteSubtasks()
++deleteTasks()
++deleteEpics()
++deleteSubtasks()
 
--deleteTaskById()
--deleteEpicById()
--deleteSubtaskById()
++deleteTaskById()
++deleteEpicById()
++deleteSubtaskById()
 
--updateTask()
--updateEpic()
--updateSubtask()
++updateTask()
++updateEpic()
++updateSubtask()
 
--getEpicSubtasks()
++getEpicSubtasks()
+-updateEpicStatus()
 </panel_attributes>
     <additional_attributes/>
   </element>

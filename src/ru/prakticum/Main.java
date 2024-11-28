@@ -1,5 +1,9 @@
 package ru.prakticum;
 
+import ru.prakticum.interfaces.Manager;
+import ru.prakticum.tasks.Epic;
+import ru.prakticum.tasks.SubTask;
+import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.InstanceGenerator;
 
 import java.util.ArrayList;
@@ -7,19 +11,21 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        //TODO do i need to implement a user interface for it??? i hope no :)
         Manager manager = new Manager();
         InstanceGenerator generator = new InstanceGenerator();
         // testing creation
         System.out.println("--------testing creation--------");
-        Epic epic = manager.createEpic("epicName", "epicDesc");
+        Epic epic = new Epic("epicName", "epicDesc");
+
+        manager.createEpic(epic);
         System.out.println(epic);
 
-        Task task = manager.createTask("taskName", "taskDescription");
-        manager.createTask("taskName", "taskDescription");
+        Task task = new Task("taskName", "taskDescription");
+        manager.createTask(task);
         System.out.println(task);
 
-        SubTask subTask = manager.createSubtask("subName", "subdescription", 0);
+        SubTask subTask = new SubTask("subName", "subdescription", 0);
+        manager.createSubtask(subTask);
         System.out.println(subTask);
 
 
@@ -42,11 +48,12 @@ public class Main {
         Task task1 = manager.getTaskById(1);
         System.out.println(task1);
 
-        SubTask subTask1 = manager.getSubtaskById(3);
+        SubTask subTask1 = manager.getSubtaskById(2);
         System.out.println(subTask1);
 
         Epic epic1 = manager.getEpicById(0);
         System.out.println(epic1);
+
 
         //testing deletion
         System.out.println("--------testing deletion--------");
@@ -62,13 +69,13 @@ public class Main {
         manager.deleteEpics();
         System.out.println(manager.getEpics());
 
+
         //testing deletion by Id
         System.out.println("--------testing deletion by Id--------");
         generator.createTasks(manager, 5);
         generator.createEpics(manager, 3);
         generator.createSubtasks(manager, 3, 9);
         generator.createSubtasks(manager, 3, 10);
-        generator.createSubtasks(manager, 3, 11);
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubtasks());
@@ -88,6 +95,7 @@ public class Main {
         manager.deleteEpicById(9);
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubtasks());
+
 
         //testing update
         System.out.println("--------testing update--------");

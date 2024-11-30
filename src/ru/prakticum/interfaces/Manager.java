@@ -29,17 +29,18 @@ public class Manager {
     }
 
     public SubTask createSubtask(SubTask subTask) {
-        if (getEpicById(subTask.getEpicId()) != null) {
-            subTask.setId(counter);
-            subtasks.put(counter, subTask);
-            Epic epicToUpdate = getEpicById(subTask.getEpicId());
-            ArrayList<Integer> subtasksIds = epicToUpdate.getSubtaskIds();
-            subtasksIds.add(counter);
-            updateEpic(epicToUpdate);
-            counter++;
-        } else {
+        Epic epic = epics.get(subTask.getEpicId());
+        if (epic == null) {
             System.out.println("ERROR: There is no epic with id: " + subTask.getEpicId());
+            return null;
         }
+        subTask.setId(counter);
+        subtasks.put(counter, subTask);
+        Epic epicToUpdate = epics.get(subTask.getEpicId());
+        ArrayList<Integer> subtasksIds = epicToUpdate.getSubtaskIds();
+        subtasksIds.add(counter);
+        updateEpic(epicToUpdate);
+        counter++;
         return subTask;
     }
 
@@ -80,35 +81,18 @@ public class Manager {
     }
 
     public boolean deleteSubtasks() {
-        //TODO i dont know how it could be implemented better. need help
-        for (SubTask subTask : subtasks.values()) {
-            Integer subTaskId = subTask.getId();
-            Integer epicId = subTask.getEpicId();
-            String epicName = epics.get(epicId).getName();
-            String epicDescription = epics.get(epicId).getDescription();
-            ArrayList<Integer> epicSubtasks = epics.get(epicId).getSubtaskIds();
-            epicSubtasks.remove(subTaskId);
-            Epic epic = new Epic(epicName, epicDescription);
-            epic.getSubtaskIds().addAll(epicSubtasks);
-            deleteSubtaskById(subTaskId);
-            updateEpic(epic);
-
+        //TODO this looks much better. Thanks!
+        for (Epic epic : epics.values()) {
+            epic.getSubtaskIds().clear();
+            epic.setStatus(Status.NEW);
         }
+        subtasks.clear();
         return subtasks.isEmpty();
     }
 
     public boolean deleteEpics() {
-        for (Epic epic : epics.values()) {
-            for (Integer id : epic.getSubtaskIds()) {
-                if (getSubtaskById(id) != null) {
-                    deleteSubtaskById(id);
-                    //TODO im not sure should i do an epic status check after deletion of a subtask???
-                } else {
-                    System.out.println("ERROR: There is no subtask with id: " + id);
-                }
-            }
-        }
         epics.clear();
+        subtasks.clear();
         return epics.isEmpty();
     }
 
@@ -125,7 +109,13 @@ public class Manager {
     }
 
     public void deleteEpicById(Integer id) {
-        //TODO i removed the logic for subtask deletion, but in this case all subtasks gonna be without parent
+        Epic epic = epics.remove(id);
+        if (epic == null) {
+            return;
+        }
+        for (Integer subtaskId : epic.getSubtaskIds()) {
+            subtasks.remove(subtaskId);
+        }
         epics.remove(id);
     }
 
@@ -139,8 +129,6 @@ public class Manager {
     }
 
     public void updateEpic(Epic epic) {
-        //TODO I dont agree with updating name and description. i still need to update subtasks ids in some cases and
-        // this leads to update all fields in the instance. its easier to do it the way its implemented now.
         epics.put(epic.getId(), epic);
     }
 

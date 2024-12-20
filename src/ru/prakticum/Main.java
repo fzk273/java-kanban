@@ -1,5 +1,6 @@
 package ru.prakticum;
 
+import ru.prakticum.managers.InMemoryTaskManager;
 import ru.prakticum.interfaces.Manager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        Manager manager = new Manager();
+        Manager manager = new InMemoryTaskManager();
         InstanceGenerator generator = new InstanceGenerator();
         // testing creation
         System.out.println("--------testing creation--------");
@@ -122,6 +123,7 @@ public class Main {
         System.out.println("\n");
 
         System.out.println("Looks like everything is working! See you :)");
-
+        System.out.println(manager.getHistory());
+        System.out.println(manager.getHistory().size());
     }
 }

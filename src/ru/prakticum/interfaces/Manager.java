@@ -5,6 +5,7 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface Manager {
     Task createTask(Task task);
@@ -47,5 +48,5 @@ public interface Manager {
 
     void updateEpicStatus(Epic epic);
 
-    ArrayList<Task> getHistory();
+    List<Task> getHistory();
 }

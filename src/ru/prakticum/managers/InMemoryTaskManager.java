@@ -1,6 +1,7 @@
 package ru.prakticum.managers;
 
 import ru.prakticum.enums.Status;
+import ru.prakticum.interfaces.HistoryManager;
 import ru.prakticum.interfaces.Manager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
@@ -8,22 +9,24 @@ import ru.prakticum.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements Manager {
     private Integer counter;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, SubTask> subtasks;
     private HashMap<Integer, Epic> epics;
-    private final ArrayList<Task> history;
-    private final int HISTORY_SIZE = 10;
+    private HistoryManager history;
 
-    public InMemoryTaskManager() {
+    public InMemoryTaskManager(HistoryManager historyManager) {
         counter = 0;
         tasks = new HashMap();
         subtasks = new HashMap();
         epics = new HashMap();
-        history = new ArrayList<>();
+        this.history = historyManager;
+
     }
+
 
     @Override
     public Task createTask(Task task) {
@@ -75,19 +78,19 @@ public class InMemoryTaskManager implements Manager {
 
     @Override
     public Task getTaskById(Integer id) {
-        addToHistory(tasks.get(id));
+        history.add(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
     public SubTask getSubtaskById(Integer id) {
-        addToHistory(subtasks.get(id));
+        history.add(subtasks.get(id));
         return subtasks.get(id);
     }
 
     @Override
     public Epic getEpicById(Integer id) {
-        addToHistory(epics.get(id));
+        history.add(epics.get(id));
         return epics.get(id);
     }
 
@@ -192,23 +195,12 @@ public class InMemoryTaskManager implements Manager {
         }
     }
 
-
     @Override
-    public ArrayList<Task> getHistory() {
-        return history;
+    public List<Task> getHistory() {
+        return history.getHistory();
     }
 
-    boolean isHistoryFull() {
-        return history.size() >= HISTORY_SIZE;
+    public Integer getCounter() {
+        return counter;
     }
-
-    <T extends Task> void addToHistory(T task) {
-        if (isHistoryFull()) {
-            history.removeFirst();
-            history.add(task);
-        } else {
-            history.add(task);
-        }
-    }
-
 }

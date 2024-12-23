@@ -7,7 +7,7 @@ import ru.prakticum.tasks.Task;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Manager {
+public interface TaskManager {
     Task createTask(Task task);
 
     SubTask createSubtask(SubTask subTask);
@@ -26,11 +26,11 @@ public interface Manager {
 
     Epic getEpicById(Integer id);
 
-    boolean deleteTasks();
+    void deleteTasks();
 
-    boolean deleteSubtasks();
+    void deleteSubtasks();
 
-    boolean deleteEpics();
+    void deleteEpics();
 
     void deleteTaskByID(Integer id);
 
@@ -45,8 +45,6 @@ public interface Manager {
     void updateEpic(Epic epic);
 
     ArrayList<SubTask> getEpicSubtasks(Epic epic);
-
-    void updateEpicStatus(Epic epic);
 
     List<Task> getHistory();
 }

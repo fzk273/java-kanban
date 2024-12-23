@@ -8,29 +8,26 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final List<Task> history;
-    private final int historySize = 10;
+    private static final int HISTORY_SIZE = 10;
 
     public InMemoryHistoryManager() {
         history = new ArrayList<>();
     }
 
-
     @Override
     public List<Task> getHistory() {
-        return history;
-    }
-
-    boolean isHistoryFull() {
-        return history.size() >= historySize;
+        return new ArrayList<>(history) ;
     }
 
     @Override
     public void add(Task task) {
-        if (isHistoryFull()) {
-            history.removeFirst();
+        if (task != null) {
+            if (history.size() >= HISTORY_SIZE) {
+                history.removeFirst();
+            }
             history.add(task);
         } else {
-            history.add(task);
+            System.out.println("Task is null");
         }
     }
 }

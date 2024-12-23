@@ -1,9 +1,10 @@
 package ru.prakticum.managers;
 
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.prakticum.enums.Status;
-import ru.prakticum.interfaces.Manager;
+import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
@@ -14,302 +15,281 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
+    private TaskManager inMemoryTaskManager;
+    private Task task;
+    private Epic epic;
+    private SubTask subTask;
+
+    @BeforeEach
+    void init() {
+        inMemoryTaskManager = Managers.getDefault();
+        task = new Task("task", "desc");
+        epic = new Epic("epic", "desc");
+        subTask = new SubTask("Subtask", "desc1", 0);
+
+    }
+
+    @Test
+    void tasksWithSameIdsAreEqual() {
+        inMemoryTaskManager.createTask(task);
+        assertEquals(task, inMemoryTaskManager.getTaskById(0));
+    }
+
+    @Test
+    void inheritorsOfTheTaskWithSameIdsAreEqual() {
+        inMemoryTaskManager.createEpic(epic);
+        assertEquals(epic, inMemoryTaskManager.getEpicById(0));
+
+        inMemoryTaskManager.createSubtask(subTask);
+        assertEquals(subTask, inMemoryTaskManager.getSubtaskById(1));
+    }
+
+    @Test
+    void cannotPutEpicAsASubtaskInEpic() {
+        //TODO я не понимаю как можно реализовать этот тест. у меня нет ни сеттеров для айдишников.
+        // каст тоже не сработает. Создание подзадачи принимает объект подзадачи. нид хэлп
+        inMemoryTaskManager.createEpic(epic);
+        Epic epic1 = new Epic("epic1", "desc1");
+
+    }
+
+    @Test
+    void checkThatSubtaskCannotBeItsOwnEpic() {
+        //TODO поидее на такое должен вылететь эксепшн, но мы такого не проходили.
+        // в коде метода есть "ошибка" и возвращается null. поэтому считаю тест валидным
+        inMemoryTaskManager.createSubtask(subTask);
+        assertNull(subTask.getId());
+    }
+
+    @Test
+    void checkAllTasksSubtasksEpicsAreEmptyAfterCreation() {
+        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
+        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
+        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
+    }
+
+    @Test
+    void checkThatTasksWithGeneratedAndSetIdAreNotConflicting() {
+        inMemoryTaskManager.createTask(task);
+        task.setId(1);
+        inMemoryTaskManager.createTask(task);
+        assertEquals(2, inMemoryTaskManager.getTasks().size());
+    }
+
+    @Test
+    void checkThatAllFieldsOfTaskAreImmutableAfterItWasAddedToManager() {
+        //TODO не понимаю почему они меняются в хэщмапе.
+        // нужно записывать копию объекта в хэшмап?? если так то, подскажите пожалуйста как реализовать.
+        // такой же вопрос к тесту ниже
+        int id = 0;
+        String description = "desc";
+        inMemoryTaskManager.createTask(task);
+        task.setDescription("new Desc");
+        task.setId(100);
+        assertEquals(id, inMemoryTaskManager.getTaskById(0).getId());
+        assertEquals(description, inMemoryTaskManager.getTaskById(0).getDescription());
+    }
+
+    @Test
+    void checkThatTaskStoreFirstStateOfTaskAfterItWasPutToManager() {
+        Task newTask = inMemoryTaskManager.createTask(task);
+        task.setDescription("new Desc");
+        task.setId(100);
+        assertNotEquals(newTask, task);
+    }
 
     @Test
     void createTask() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-
-        Task task1 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task1);
-
+        inMemoryTaskManager.createTask(task);
         assertEquals(1, inMemoryTaskManager.getTasks().size());
     }
 
     @Test
     void createSubtask() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
-        SubTask subTask = new SubTask("Subtask", "desc1", epic.getId());
         inMemoryTaskManager.createSubtask(subTask);
         assertEquals(1, inMemoryTaskManager.getSubtasks().size());
     }
 
     @Test
     void createEpic() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
         assertEquals(1, inMemoryTaskManager.getEpics().size());
-
-
     }
 
     @Test
     void getTasks() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-
-        Task task1 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task1);
+        inMemoryTaskManager.createTask(task);
         assertEquals(1, inMemoryTaskManager.getTasks().size());
 
-        Task task2 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task2);
+        inMemoryTaskManager.createTask(task);
         assertEquals(2, inMemoryTaskManager.getTasks().size());
-
     }
 
     @Test
     void getSubtasks() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
-        SubTask subTask1 = new SubTask("Subtask", "desc1", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask1);
+        inMemoryTaskManager.createSubtask(subTask);
         assertEquals(1, inMemoryTaskManager.getSubtasks().size());
 
-        SubTask subTask2 = new SubTask("Subtask", "desc1", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask2);
+        inMemoryTaskManager.createSubtask(subTask);
         assertEquals(2, inMemoryTaskManager.getSubtasks().size());
     }
 
     @Test
     void getEpics() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-
-        Epic epic1 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic1);
+        inMemoryTaskManager.createEpic(epic);
         assertEquals(1, inMemoryTaskManager.getEpics().size());
 
-        Epic epic2 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic2);
+        inMemoryTaskManager.createEpic(epic);
         assertEquals(2, inMemoryTaskManager.getEpics().size());
     }
 
     @Test
     void getTaskById() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        Task task1 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task1);
-        assertEquals(task1, inMemoryTaskManager.getTaskById(0));
+        inMemoryTaskManager.createTask(task);
+        assertEquals(task, inMemoryTaskManager.getTaskById(0));
     }
 
     @Test
     void getSubtaskById() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
-        SubTask subTask = new SubTask("Subtask", "desc1", epic.getId());
         inMemoryTaskManager.createSubtask(subTask);
         assertEquals(subTask, inMemoryTaskManager.getSubtaskById(1));
     }
 
     @Test
     void getEpicById() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
         assertEquals(epic, inMemoryTaskManager.getEpicById(0));
     }
 
     @Test
     void deleteTasks() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-
-        Task task1 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task1);
-        Task task2 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task2);
-
+        inMemoryTaskManager.createTask(task);
+        inMemoryTaskManager.createTask(task);
         assertEquals(2, inMemoryTaskManager.getTasks().size());
 
         inMemoryTaskManager.deleteTasks();
         assertEquals(0, inMemoryTaskManager.getTasks().size());
-
     }
 
     @Test
     void deleteSubtasks() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
-        SubTask subTask1 = new SubTask("Subtask", "desc1", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask1);
-        SubTask subTask2 = new SubTask("Subtask", "desc1", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask2);
+        inMemoryTaskManager.createSubtask(subTask);
+        inMemoryTaskManager.createSubtask(subTask);
         assertEquals(2, inMemoryTaskManager.getSubtasks().size());
 
         inMemoryTaskManager.deleteSubtasks();
         assertEquals(0, inMemoryTaskManager.getSubtasks().size());
-
     }
 
     @Test
     void deleteEpics() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-
-        Epic epic1 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic1);
-        Epic epic2 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic2);
+        inMemoryTaskManager.createEpic(epic);
+        inMemoryTaskManager.createEpic(epic);
         assertEquals(2, inMemoryTaskManager.getEpics().size());
 
         inMemoryTaskManager.deleteEpics();
         assertEquals(0, inMemoryTaskManager.getEpics().size());
-
-
     }
 
     @Test
     void deleteTaskByID() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-
-        Task task1 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task1);
+        inMemoryTaskManager.createTask(task);
         assertEquals(1, inMemoryTaskManager.getTasks().size());
 
-        inMemoryTaskManager.deleteTaskByID(task1.getId());
+        inMemoryTaskManager.deleteTaskByID(task.getId());
         assertEquals(0, inMemoryTaskManager.getTasks().size());
-
     }
 
     @Test
     void deleteSubtaskById() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
-        SubTask subTask1 = new SubTask("Subtask", "desc1", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask1);
-        int subTaskId = subTask1.getId();
+        inMemoryTaskManager.createSubtask(subTask);
+        int subTaskId = subTask.getId();
         assertEquals(1, inMemoryTaskManager.getSubtasks().size());
 
-        inMemoryTaskManager.deleteSubtaskById(subTask1.getId());
+        inMemoryTaskManager.deleteSubtaskById(subTask.getId());
         assertEquals(0, inMemoryTaskManager.getSubtasks().size());
 
         ArrayList<Integer> epicSubtasksIds = epic.getSubtaskIds();
         assertFalse(epicSubtasksIds.contains(subTaskId));
-
-
     }
 
     @Test
     void deleteEpicById() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-
-        Epic epic1 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic1);
+        inMemoryTaskManager.createEpic(epic);
         assertEquals(1, inMemoryTaskManager.getEpics().size());
-        inMemoryTaskManager.deleteEpicById(epic1.getId());
+
+        inMemoryTaskManager.deleteEpicById(epic.getId());
         assertTrue(inMemoryTaskManager.getEpics().isEmpty());
 
     }
 
     @Test
     void updateTask() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-
-        Task task1 = new Task("task1", "desc1");
-        inMemoryTaskManager.createTask(task1);
+        inMemoryTaskManager.createTask(task);
         assertEquals(1, inMemoryTaskManager.getTasks().size());
-        task1.setDescription("new desc");
 
-        inMemoryTaskManager.updateTask(task1);
-        assertEquals(task1, inMemoryTaskManager.getTaskById(0));
+        task.setDescription("new desc");
+        inMemoryTaskManager.updateTask(task);
+        assertEquals(task, inMemoryTaskManager.getTaskById(0));
 
     }
 
     @Test
     void updateSubtask() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-
-        Epic epic = new Epic("epic", "desc");
         inMemoryTaskManager.createEpic(epic);
-        SubTask subTask1 = new SubTask("Subtask", "desc1", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask1);
+        inMemoryTaskManager.createSubtask(subTask);
         assertEquals(1, inMemoryTaskManager.getSubtasks().size());
 
-        subTask1.setDescription("new Desc");
-        inMemoryTaskManager.updateSubtask(subTask1);
-        assertEquals(subTask1, inMemoryTaskManager.getSubtaskById(1));
+        subTask.setDescription("new Desc");
+        inMemoryTaskManager.updateSubtask(subTask);
+        assertEquals(subTask, inMemoryTaskManager.getSubtaskById(1));
     }
 
     @Test
     void updateEpic() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-
-        Epic epic1 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic1);
+        inMemoryTaskManager.createEpic(epic);
         assertEquals(1, inMemoryTaskManager.getEpics().size());
 
-        epic1.setDescription("new Desc");
-        inMemoryTaskManager.updateEpic(epic1);
-        assertEquals(epic1, inMemoryTaskManager.getEpicById(epic1.getId()));
-
-
+        epic.setDescription("new Desc");
+        inMemoryTaskManager.updateEpic(epic);
+        assertEquals(epic, inMemoryTaskManager.getEpicById(epic.getId()));
     }
 
     @Test
     void getEpicSubtasks() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-
-        Epic epic1 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic1);
-        SubTask subTask1 = new SubTask("Subtask", "desc1", epic1.getId());
-        inMemoryTaskManager.createSubtask(subTask1);
-        assertTrue(epic1.getSubtaskIds().contains(subTask1.getId()));
+        inMemoryTaskManager.createEpic(epic);
+        inMemoryTaskManager.createSubtask(subTask);
+        System.out.println(epic.getSubtaskIds());
+        System.out.println(subTask.getId());
+        assertTrue(epic.getSubtaskIds().contains(subTask.getId()));
     }
 
     @Test
     void updateEpicStatus() {
-        Manager inMemoryTaskManager = Managers.getDefault();
-        assertTrue(inMemoryTaskManager.getEpics().isEmpty());
-
-        Epic epic1 = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic1);
+        inMemoryTaskManager.createEpic(epic);
         assertEquals(1, inMemoryTaskManager.getEpics().size());
 
-        SubTask subTask1 = new SubTask("Subtask", "desc1", epic1.getId());
-        inMemoryTaskManager.createSubtask(subTask1);
-        assertEquals(Status.NEW, epic1.getStatus());
+        inMemoryTaskManager.createSubtask(subTask);
+        assertEquals(Status.NEW, epic.getStatus());
 
-        subTask1.setStatus(Status.IN_PROGRESS);
-        inMemoryTaskManager.updateSubtask(subTask1);
+        subTask.setStatus(Status.IN_PROGRESS);
+        inMemoryTaskManager.updateSubtask(subTask);
 
-        SubTask subTask2 = new SubTask("Subtask", "desc2", epic1.getId());
+        SubTask subTask2 = new SubTask("Subtask", "desc2", epic.getId());
         inMemoryTaskManager.createSubtask(subTask2);
-        assertEquals(Status.IN_PROGRESS, epic1.getStatus());
+        assertEquals(Status.IN_PROGRESS, epic.getStatus());
 
-
-        subTask1.setStatus(Status.DONE);
-        inMemoryTaskManager.updateSubtask(subTask1);
-        assertEquals(Status.IN_PROGRESS, epic1.getStatus());
+        subTask.setStatus(Status.DONE);
+        inMemoryTaskManager.updateSubtask(subTask);
+        assertEquals(Status.IN_PROGRESS, epic.getStatus());
 
         subTask2.setStatus(Status.DONE);
         inMemoryTaskManager.updateSubtask(subTask2);
-        assertEquals(Status.DONE, epic1.getStatus());
-
+        assertEquals(Status.DONE, epic.getStatus());
     }
-
 }

@@ -1,5 +1,6 @@
 package ru.prakticum.managers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
@@ -8,37 +9,55 @@ import ru.prakticum.tasks.Task;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
+    private InMemoryHistoryManager historyManager;
+    private Task task;
+    private Epic epic;
+    private SubTask subTask;
+
+    @BeforeEach
+    void init() {
+        historyManager = new InMemoryHistoryManager();
+        task = new Task("task", "desc");
+        epic = new Epic("epic", "desc");
+        subTask = new SubTask("subtask", "desc", 1);
+    }
 
     @Test
-    void add() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
+    void historyIsEmptyAfterCreation() {
         assertTrue(historyManager.getHistory().isEmpty());
+    }
 
-        Task task = new Task("task", "desc");
-        inMemoryTaskManager.createTask(task);
-        inMemoryTaskManager.getTaskById(task.getId());
+    @Test
+    void addOneTaskToHistory() {
+        historyManager.add(task);
         assertEquals(1, historyManager.getHistory().size());
-        for (int i = 1; i <= 10; ++i) {
-            Task task1 = new Task("task" + i, "desc" + i);
-            inMemoryTaskManager.createTask(task1);
-            inMemoryTaskManager.getTaskById(task1.getId());
+    }
+
+    @Test
+    void historyCanNotBeGreaterThan10() {
+        for (int i = 1; i <= 11; ++i) {
+            historyManager.add(task);
         }
         assertEquals(10, historyManager.getHistory().size());
+    }
 
+    @Test
+    void newTaskAppendsToTheEndOfTheHistory() {
+        historyManager.add(task);
         Task lastTask = new Task("last task", "desc");
-        inMemoryTaskManager.createTask(lastTask);
-        inMemoryTaskManager.getTaskById(lastTask.getId());
+        historyManager.add(lastTask);
         assertEquals(lastTask, historyManager.getHistory().getLast());
+    }
 
-        Epic epic = new Epic("epic", "desc");
-        inMemoryTaskManager.createEpic(epic);
-        inMemoryTaskManager.getEpicById(epic.getId());
+    @Test
+    void canAddEpicToHistory() {
+        historyManager.add(epic);
         assertEquals(epic, historyManager.getHistory().getLast());
+    }
 
-        SubTask subTask = new SubTask("subtask", "desc", epic.getId());
-        inMemoryTaskManager.createSubtask(subTask);
-        inMemoryTaskManager.getSubtaskById(subTask.getId());
+    @Test
+    void canAddSubtaskToHistory() {
+        historyManager.add(subTask);
         assertEquals(subTask, historyManager.getHistory().getLast());
     }
 }

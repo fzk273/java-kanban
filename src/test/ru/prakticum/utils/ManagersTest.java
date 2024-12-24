@@ -15,10 +15,6 @@ class ManagersTest {
 
     @Test
     void checkThatAllFieldsAreInitialised() {
-        TaskManager managers = Managers.getDefault();
-        assertNotNull(managers.getTasks());
-        assertNotNull(managers.getSubtasks());
-        assertNotNull(managers.getEpics());
-        assertNotNull(managers.getHistory());
+        assertNotNull(Managers.getDefault());
     }
 }

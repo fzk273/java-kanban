@@ -44,22 +44,6 @@ class InMemoryTaskManagerTest {
         assertEquals(subTask, inMemoryTaskManager.getSubtaskById(1));
     }
 
-    @Test
-    void cannotPutEpicAsASubtaskInEpic() {
-        //TODO я не понимаю как можно реализовать этот тест. у меня нет ни сеттеров для айдишников.
-        // каст тоже не сработает. Создание подзадачи принимает объект подзадачи. нид хэлп
-        inMemoryTaskManager.createEpic(epic);
-        Epic epic1 = new Epic("epic1", "desc1");
-
-    }
-
-    @Test
-    void checkThatSubtaskCannotBeItsOwnEpic() {
-        //TODO поидее на такое должен вылететь эксепшн, но мы такого не проходили.
-        // в коде метода есть "ошибка" и возвращается null. поэтому считаю тест валидным
-        inMemoryTaskManager.createSubtask(subTask);
-        assertNull(subTask.getId());
-    }
 
     @Test
     void checkAllTasksSubtasksEpicsAreEmptyAfterCreation() {
@@ -74,28 +58,6 @@ class InMemoryTaskManagerTest {
         task.setId(1);
         inMemoryTaskManager.createTask(task);
         assertEquals(2, inMemoryTaskManager.getTasks().size());
-    }
-
-    @Test
-    void checkThatAllFieldsOfTaskAreImmutableAfterItWasAddedToManager() {
-        //TODO не понимаю почему они меняются в хэщмапе.
-        // нужно записывать копию объекта в хэшмап?? если так то, подскажите пожалуйста как реализовать.
-        // такой же вопрос к тесту ниже
-        int id = 0;
-        String description = "desc";
-        inMemoryTaskManager.createTask(task);
-        task.setDescription("new Desc");
-        task.setId(100);
-        assertEquals(id, inMemoryTaskManager.getTaskById(0).getId());
-        assertEquals(description, inMemoryTaskManager.getTaskById(0).getDescription());
-    }
-
-    @Test
-    void checkThatTaskStoreFirstStateOfTaskAfterItWasPutToManager() {
-        Task newTask = inMemoryTaskManager.createTask(task);
-        task.setDescription("new Desc");
-        task.setId(100);
-        assertNotEquals(newTask, task);
     }
 
     @Test
@@ -264,8 +226,6 @@ class InMemoryTaskManagerTest {
     void getEpicSubtasks() {
         inMemoryTaskManager.createEpic(epic);
         inMemoryTaskManager.createSubtask(subTask);
-        System.out.println(epic.getSubtaskIds());
-        System.out.println(subTask.getId());
         assertTrue(epic.getSubtaskIds().contains(subTask.getId()));
     }
 

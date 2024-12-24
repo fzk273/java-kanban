@@ -2,21 +2,23 @@ package ru.prakticum.managers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.prakticum.interfaces.HistoryManager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
+import ru.prakticum.utils.Managers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
-    private InMemoryHistoryManager historyManager;
+    private HistoryManager historyManager;
     private Task task;
     private Epic epic;
     private SubTask subTask;
 
     @BeforeEach
     void init() {
-        historyManager = new InMemoryHistoryManager();
+        historyManager = Managers.getDefaultHistory();
         task = new Task("task", "desc");
         epic = new Epic("epic", "desc");
         subTask = new SubTask("subtask", "desc", 1);

@@ -36,14 +36,6 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void historyCanNotBeGreaterThan10() {
-        for (int i = 1; i <= 11; ++i) {
-            historyManager.add(task);
-        }
-        assertEquals(10, historyManager.getHistory().size());
-    }
-
-    @Test
     void newTaskAppendsToTheEndOfTheHistory() {
         historyManager.add(task);
         Task lastTask = new Task("last task", "desc");

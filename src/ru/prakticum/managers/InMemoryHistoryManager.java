@@ -50,28 +50,30 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void removeNode(Node node) {
-        if (node != null) return;
-
-        if (node.next != null) {
-            node.prev.next = node.next;
-        } else {
+        if (node == null) return;
+        if (node.prev == null) {
             head = node.next;
-        }
-
-        if (node.prev != null) {
-            node.next.prev = node.prev;
+            if (head != null) {
+                head.prev = null;
+            }
         } else {
+            node.prev.next = node.next;
+        }
+        if (node.next == null) {
             tail = node.prev;
+            if (tail != null) {
+                tail.next = null;
+            }
+        } else {
+            node.next.prev = node.prev;
         }
     }
 
 
     @Override
     public void add(Task task) {
-        if (task == null) return;
         if (history.containsKey(task.getId())) {
             removeNode(history.get(task.getId()));
-            history.remove(task.getId());
         }
         Node taskNode = new Node(task);
         linkLast(taskNode);
@@ -80,11 +82,9 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        if (history.containsKey(id)) {
             Node node = history.get(id);
             removeNode(node);
             history.remove(id);
-        }
     }
 
     @Override
@@ -96,14 +96,5 @@ public class InMemoryHistoryManager implements HistoryManager {
             current = current.next;
         }
         return historyList;
-    }
-
-    @Override
-    public String toString() {
-        return "InMemoryHistoryManager{" +
-                "history=" + history +
-                ", head=" + head +
-                ", tail=" + tail +
-                '}';
     }
 }

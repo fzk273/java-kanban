@@ -6,23 +6,25 @@ import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
+import ru.prakticum.utils.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private Integer counter;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, SubTask> subtasks;
     private HashMap<Integer, Epic> epics;
-    private InMemoryHistoryManager history;
+    private HistoryManager history;
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
+    public InMemoryTaskManager() {
         counter = 0;
         tasks = new HashMap();
         subtasks = new HashMap();
         epics = new HashMap();
-        history = (InMemoryHistoryManager) historyManager;
+        history = Managers.getDefaultHistory();
     }
 
     @Override
@@ -198,12 +200,7 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public ArrayList<Task> getHistory() {
-        return (ArrayList<Task>) history.getHistory();
+    public List<Task> getHistory() {
+        return history.getHistory();
     }
-
-    <T extends Task> void addToHistory(T task) {
-        history.add(task);
-    }
-
 }

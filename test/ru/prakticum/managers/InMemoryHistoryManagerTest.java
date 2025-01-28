@@ -9,8 +9,6 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.Managers;
 
-import static ru.prakticum.managers.InMemoryHistoryManager.*;
-
 class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
     private Task task;
@@ -71,11 +69,10 @@ class InMemoryHistoryManagerTest {
     void checkHistoryElementMovesToLastOneAfterOneMoreCall() {
         historyManager.add(task);
         historyManager.add(epic);
-        Assertions.assertEquals(task, historyManager.getHistory().get(0));
+        Assertions.assertEquals(task, historyManager.getHistory().getFirst());
         historyManager.add(task);
         Assertions.assertEquals(task, historyManager.getHistory().getLast());
         Assertions.assertNotEquals(task, historyManager.getHistory().getFirst());
-
     }
 
     @Test
@@ -85,6 +82,38 @@ class InMemoryHistoryManagerTest {
         historyManager.remove(task.getId());
         Assertions.assertEquals(0, historyManager.getHistory().size());
     }
-    //TODO непонимаю как протестить класс Node не могу никак импортнуть его сюда, поскольку он находится в другом классе. нид хэлп
 
+    @Test
+    void removeTaskFromTheMiddleOfHistory() {
+        historyManager.add(task);
+        historyManager.add(subTask);
+        historyManager.add(epic);
+        Assertions.assertEquals(3, historyManager.getHistory().size());
+        historyManager.remove(epic.getId());
+        Assertions.assertEquals(2, historyManager.getHistory().size());
+        Assertions.assertEquals(subTask, historyManager.getHistory().get(1));
+    }
+
+    @Test
+    void removeTaskFromTheEndOfHistory() {
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subTask);
+        Assertions.assertEquals(3, historyManager.getHistory().size());
+        historyManager.remove(subTask.getId());
+        Assertions.assertEquals(2, historyManager.getHistory().size());
+        Assertions.assertEquals(epic, historyManager.getHistory().getLast());
+        Assertions.assertFalse(historyManager.getHistory().contains(subTask));
+    }
+
+    @Test
+    void removeFirstTaskFromHistory() {
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subTask);
+        Assertions.assertEquals(3, historyManager.getHistory().size());
+        historyManager.remove(task.getId());
+        Assertions.assertEquals(2, historyManager.getHistory().size());
+        Assertions.assertEquals(epic, historyManager.getHistory().getFirst());
+    }
 }

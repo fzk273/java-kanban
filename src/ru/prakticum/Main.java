@@ -42,7 +42,7 @@ public class Main {
         ArrayList<Epic> epics = manager.getEpics();
         System.out.println(epics);
 
-
+        System.out.println(manager.getHistory());
         //testing get by id
         System.out.println("--------testing get by id--------");
 
@@ -55,6 +55,10 @@ public class Main {
         Epic epic1 = manager.getEpicById(0);
         System.out.println(epic1);
 
+        //TODO я не понимаю почему последний принт истории мне всегда выдаёт лишние элементы в мапе с историей, хотя я явно удаляю этот элемент из мапы. Я уже дебагером раз 20 прошёл и так и не понял в чём проблема. need help
+        System.out.println(manager.getHistory());
+        manager.getTaskById(1);
+        System.out.println(manager.getHistory());
 
         //testing deletion
         System.out.println("--------testing deletion--------");
@@ -71,7 +75,7 @@ public class Main {
         System.out.println(manager.getEpics());
 
 
-        //testing deletion by Id
+//        testing deletion by Id
         System.out.println("--------testing deletion by Id--------");
         generator.createTasks(manager, 5);
         generator.createEpics(manager, 3);
@@ -98,7 +102,7 @@ public class Main {
         System.out.println(manager.getSubtasks());
 
 
-        //testing update
+//        testing update
         System.out.println("--------testing update--------");
 
         System.out.println(manager.getTasks());
@@ -124,6 +128,5 @@ public class Main {
 
         System.out.println("Looks like everything is working! See you :)");
         System.out.println(manager.getHistory());
-//        System.out.println(manager.);
     }
 }

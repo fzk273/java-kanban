@@ -6,6 +6,7 @@ import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
+import ru.prakticum.utils.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,15 +19,13 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Epic> epics;
     private HistoryManager history;
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
+    public InMemoryTaskManager() {
         counter = 0;
         tasks = new HashMap();
         subtasks = new HashMap();
         epics = new HashMap();
-        this.history = historyManager;
-
+        history = Managers.getDefaultHistory();
     }
-
 
     @Override
     public Task createTask(Task task) {
@@ -94,11 +93,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
+        for (Integer taskId : tasks.keySet()) {
+            history.remove(taskId);
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteSubtasks() {
+        for (Integer subtaskId : subtasks.keySet()) {
+            history.remove(subtaskId);
+        }
         for (Epic epic : epics.values()) {
             epic.getSubtaskIds().clear();
             epic.setStatus(Status.NEW);
@@ -115,6 +120,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskByID(Integer id) {
         tasks.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -123,8 +129,8 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(subTask.getEpicId());
         epic.getSubtaskIds().remove(id);
         subtasks.remove(id);
+        history.remove(id);
         updateEpic(epic);
-        updateEpicStatus(epic);
     }
 
     @Override
@@ -135,8 +141,10 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Integer subtaskId : epic.getSubtaskIds()) {
             subtasks.remove(subtaskId);
+            history.remove(id);
         }
         epics.remove(id);
+        history.remove(id);
     }
 
     @Override
@@ -190,9 +198,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+
     @Override
     public List<Task> getHistory() {
         return history.getHistory();
     }
-
 }

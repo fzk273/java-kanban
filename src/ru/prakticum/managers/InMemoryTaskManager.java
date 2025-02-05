@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Integer counter;
-    private HashMap<Integer, Task> tasks;
-    private HashMap<Integer, SubTask> subtasks;
-    private HashMap<Integer, Epic> epics;
+    protected Integer counter;
+    protected HashMap<Integer, Task> tasks;
+    protected HashMap<Integer, SubTask> subtasks;
+    protected HashMap<Integer, Epic> epics;
     private HistoryManager history;
 
     public InMemoryTaskManager() {
@@ -25,6 +25,10 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks = new HashMap();
         epics = new HashMap();
         history = Managers.getDefaultHistory();
+    }
+
+    public Integer getCounter() {
+        return counter;
     }
 
     @Override

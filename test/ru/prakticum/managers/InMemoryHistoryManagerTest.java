@@ -9,6 +9,8 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.Managers;
 
+import java.util.List;
+
 class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
     private Task task;
@@ -90,8 +92,7 @@ class InMemoryHistoryManagerTest {
         historyManager.add(epic);
         Assertions.assertEquals(3, historyManager.getHistory().size());
         historyManager.remove(epic.getId());
-        Assertions.assertEquals(2, historyManager.getHistory().size());
-        Assertions.assertEquals(subTask, historyManager.getHistory().get(1));
+        Assertions.assertEquals(List.of(task, subTask), historyManager.getHistory());
     }
 
     @Test

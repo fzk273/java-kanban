@@ -11,17 +11,15 @@ public class Task {
     private Status status;
     private String name;
     private String description;
-    private TaskType taskType;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.taskType = TaskType.TASK;
     }
 
     public TaskType getTaskType() {
-        return taskType;
+        return TaskType.TASK;
     }
 
     public Integer getId() {
@@ -55,7 +53,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return id + "," + taskType.toString()
+        return id + "," + getTaskType()
                 + "," + name
                 + "," + status
                 + "," + description

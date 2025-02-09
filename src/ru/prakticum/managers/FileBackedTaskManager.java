@@ -1,11 +1,11 @@
 package ru.prakticum.managers;
 
-import ru.prakticum.enums.Status;
 import ru.prakticum.enums.TaskType;
 import ru.prakticum.exceptions.ManagerSaveException;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
+import ru.prakticum.utils.CSVTaskFormat;
 
 import java.io.*;
 import java.util.List;
@@ -26,44 +26,34 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             //skipping headline of csv
             line = reader.readLine();
             while (line != null) {
-                List<String> splittedLine = List.of(line.split(","));
-                int taskId = Integer.parseInt(splittedLine.get(0));
-                TaskType taskType = TaskType.valueOf(splittedLine.get(1));
-                String taskName = splittedLine.get(2);
-                Status taskStatus = Status.valueOf(splittedLine.get(3));
-                String taskDescription = splittedLine.get(4);
-                //TODO я практически уверен, что всё это можно реализовать сильно лаконичнее. need help
-                if (taskType.equals(TaskType.TASK)) {
-                    Task taskFromBackUP = new Task(taskName, taskDescription);
-                    taskFromBackUP.setId(taskId);
-                    taskFromBackUP.setStatus(taskStatus);
-                    fileBackedTaskManager.tasks.put(taskId, taskFromBackUP);
-                }
-                if (taskType.equals(TaskType.EPIC)) {
-                    Epic epicFromBackUP = new Epic(taskName, taskDescription);
-                    epicFromBackUP.setId(taskId);
-                    epicFromBackUP.setStatus(taskStatus);
-                    fileBackedTaskManager.epics.put(taskId, epicFromBackUP);
-                }
-                if (taskType.equals(TaskType.SUBTASK)) {
-                    SubTask subtaskFromBackUP = new SubTask(taskName, taskDescription, Integer.valueOf(splittedLine.get(5)));
-                    subtaskFromBackUP.setId(taskId);
-                    subtaskFromBackUP.setStatus(taskStatus);
-                    fileBackedTaskManager.subtasks.put(taskId, subtaskFromBackUP);
-                }
-                if (taskIdCounter < taskId) {
-                    fileBackedTaskManager.counter = taskId + 1;
+                Task task = CSVTaskFormat.taskFromString(List.of(line.split(",")));
+                fileBackedTaskManager.addTask(task);
+                if (taskIdCounter <= task.getId()) {
+                    taskIdCounter++;
+                    fileBackedTaskManager.counter = taskIdCounter;
                 }
                 line = reader.readLine();
             }
 
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ManagerSaveException("failed to load a history file");
         }
 
         return fileBackedTaskManager;
+    }
+
+    private  void addTask(Task task) {
+        if (task.getTaskType().equals(TaskType.TASK)) {
+            tasks.put(task.getId(), task);
+        }
+        if (task.getTaskType().equals(TaskType.EPIC)) {
+            epics.put(task.getId(), (Epic) task);
+        }
+        if (task.getTaskType().equals(TaskType.SUBTASK)) {
+            SubTask subTask = (SubTask) task;
+            subtasks.put(task.getId(), subTask);
+            epics.get(subTask.getEpicId()).addSubtask(subTask.getId());
+        }
     }
 
     @Override
@@ -142,7 +132,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
 
-    public void save() {
+    private void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(backUpFile.getAbsolutePath()))) {
             writer.write("id,type,name,status,description,epic\n");
             for (Task task : getTasks()) {

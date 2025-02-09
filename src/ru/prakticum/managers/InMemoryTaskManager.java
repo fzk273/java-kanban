@@ -21,15 +21,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     public InMemoryTaskManager() {
         counter = 0;
-        tasks = new HashMap();
-        subtasks = new HashMap();
-        epics = new HashMap();
+        tasks = new HashMap<>();
+        subtasks = new HashMap<>();
+        epics = new HashMap<>();
         history = Managers.getDefaultHistory();
     }
 
-    public Integer getCounter() {
-        return counter;
-    }
 
     @Override
     public Task createTask(Task task) {

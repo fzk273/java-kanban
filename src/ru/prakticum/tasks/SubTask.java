@@ -4,17 +4,15 @@ import ru.prakticum.enums.TaskType;
 
 public class SubTask extends Task {
     private Integer epicId;
-    private TaskType taskType;
 
     public SubTask(String name, String description, Integer epicId) {
         super(name, description);
         this.epicId = epicId;
-        this.taskType = TaskType.SUBTASK;
     }
 
     @Override
     public TaskType getTaskType() {
-        return taskType;
+        return TaskType.SUBTASK;
     }
 
     public Integer getEpicId() {
@@ -23,7 +21,7 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return super.getId() + "," + taskType.toString()
+        return super.getId() + "," + getTaskType()
                 + "," + super.getName()
                 + "," + super.getStatus()
                 + "," + super.getDescription()

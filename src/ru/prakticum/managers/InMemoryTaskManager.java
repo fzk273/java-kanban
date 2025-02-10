@@ -13,19 +13,20 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Integer counter;
-    private HashMap<Integer, Task> tasks;
-    private HashMap<Integer, SubTask> subtasks;
-    private HashMap<Integer, Epic> epics;
+    protected Integer counter;
+    protected HashMap<Integer, Task> tasks;
+    protected HashMap<Integer, SubTask> subtasks;
+    protected HashMap<Integer, Epic> epics;
     private HistoryManager history;
 
     public InMemoryTaskManager() {
         counter = 0;
-        tasks = new HashMap();
-        subtasks = new HashMap();
-        epics = new HashMap();
+        tasks = new HashMap<>();
+        subtasks = new HashMap<>();
+        epics = new HashMap<>();
         history = Managers.getDefaultHistory();
     }
+
 
     @Override
     public Task createTask(Task task) {

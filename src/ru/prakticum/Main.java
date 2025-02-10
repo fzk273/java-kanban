@@ -1,12 +1,15 @@
 package ru.prakticum;
 
 import ru.prakticum.interfaces.TaskManager;
+import ru.prakticum.managers.FileBackedTaskManager;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.InstanceGenerator;
 import ru.prakticum.utils.Managers;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Main {
@@ -55,7 +58,6 @@ public class Main {
         Epic epic1 = manager.getEpicById(0);
         System.out.println(epic1);
 
-        //TODO я не понимаю почему последний принт истории мне всегда выдаёт лишние элементы в мапе с историей, хотя я явно удаляю этот элемент из мапы. Я уже дебагером раз 20 прошёл и так и не понял в чём проблема. need help
         System.out.println(manager.getHistory());
         manager.getTaskById(1);
         System.out.println(manager.getHistory());
@@ -128,5 +130,34 @@ public class Main {
 
         System.out.println("Looks like everything is working! See you :)");
         System.out.println(manager.getHistory());
+
+        File backupFile = new File(Paths.get("src/ru/prakticum/resources/save_example.csv").toString());
+
+        FileBackedTaskManager fbManager = FileBackedTaskManager.loadFromFile(backupFile);
+        System.out.println("---------------------------------------");
+        System.out.println(fbManager.getSubtasks());
+        System.out.println(fbManager.getEpics());
+        System.out.println(fbManager.getTasks());
+        Task fbTask = new Task("FB name2", "FB desc2");
+        Task fbTask2 = new Task("FB name2", "FB desc2");
+        Task fbTask3 = new Task("FB name2", "FB desc2");
+        fbManager.createTask(fbTask);
+        fbManager.createTask(fbTask2);
+        fbManager.createTask(fbTask3);
+        Epic epic3 = new Epic("FB epic", "FB desc");
+        Epic epic4 = new Epic("FB epic", "FB desc");
+        Epic epic5 = new Epic("FB epic", "FB desc");
+        fbManager.createEpic(epic3);
+        fbManager.createEpic(epic4);
+        fbManager.createEpic(epic5);
+        System.out.println(fbManager.getEpics());
+        SubTask fbSub = new SubTask("FB sub", "FB desc", 16);
+        SubTask fbSub2 = new SubTask("FB sub", "FB desc", 16);
+        SubTask fbSub3 = new SubTask("FB sub", "FB desc", 16);
+        fbManager.createSubtask(fbSub);
+        fbManager.createSubtask(fbSub2);
+        fbManager.createSubtask(fbSub3);
+        System.out.println(fbManager.getSubtasks());
+
     }
 }

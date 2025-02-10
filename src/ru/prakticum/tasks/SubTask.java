@@ -1,5 +1,7 @@
 package ru.prakticum.tasks;
 
+import ru.prakticum.enums.TaskType;
+
 public class SubTask extends Task {
     private Integer epicId;
 
@@ -8,18 +10,21 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
+    @Override
+    public TaskType getTaskType() {
+        return TaskType.SUBTASK;
+    }
+
     public Integer getEpicId() {
         return epicId;
     }
 
     @Override
     public String toString() {
-        return "SubTask{" +
-                "id=" + super.getId() +
-                ", status=" + super.getStatus() +
-                ", name='" + super.getName() + '\'' +
-                ", description='" + super.getDescription() + '\'' +
-                "epicId=" + epicId +
-                "} ";
+        return super.getId() + "," + getTaskType()
+                + "," + super.getName()
+                + "," + super.getStatus()
+                + "," + super.getDescription()
+                + "," + getEpicId();
     }
 }

@@ -2,6 +2,7 @@ package ru.prakticum.tasks;
 
 
 import ru.prakticum.enums.Status;
+import ru.prakticum.enums.TaskType;
 
 import java.util.Objects;
 
@@ -15,6 +16,10 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
+    }
+
+    public TaskType getTaskType() {
+        return TaskType.TASK;
     }
 
     public Integer getId() {
@@ -48,12 +53,11 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", status=" + status +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        return id + "," + getTaskType()
+                + "," + name
+                + "," + status
+                + "," + description
+                + ",";
     }
 
     @Override

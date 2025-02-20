@@ -9,6 +9,8 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 class InMemoryHistoryManagerTest {
@@ -16,15 +18,19 @@ class InMemoryHistoryManagerTest {
     private Task task;
     private Epic epic;
     private SubTask subTask;
+    private LocalDateTime nowDateTime;
+    private Duration oneHour;
 
     @BeforeEach
     void init() {
+        nowDateTime = LocalDateTime.now();
+        oneHour = Duration.ofHours(1);
         historyManager = Managers.getDefaultHistory();
-        task = new Task("task", "desc");
+        task = new Task("task", "desc", nowDateTime, oneHour);
         task.setId(0);
-        epic = new Epic("epic", "desc");
+        epic = new Epic("epic", "desc", nowDateTime, oneHour);
         epic.setId(1);
-        subTask = new SubTask("subtask", "desc", 1);
+        subTask = new SubTask("subtask", "desc", nowDateTime, oneHour, 1);
         subTask.setId(2);
     }
 
@@ -42,7 +48,7 @@ class InMemoryHistoryManagerTest {
     @Test
     void newTaskAppendsToTheEndOfTheHistory() {
         historyManager.add(task);
-        Task lastTask = new Task("last task", "desc");
+        Task lastTask = new Task("last task", "desc", nowDateTime, oneHour);
         historyManager.add(lastTask);
         Assertions.assertEquals(lastTask, historyManager.getHistory().getLast());
     }

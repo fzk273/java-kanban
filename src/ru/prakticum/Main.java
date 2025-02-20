@@ -10,25 +10,39 @@ import ru.prakticum.utils.Managers;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Main {
 
     public static void main(String[] args) {
+        LocalDateTime nowTime = LocalDateTime.now();
+        Duration oneHour = Duration.ofHours(1);
+
+        inMemoryTaskManagerUserStory(nowTime, oneHour);
+        fileBackedTaskManagerUserStory(nowTime, oneHour);
+
+
+    }
+
+    public static void inMemoryTaskManagerUserStory(LocalDateTime nowTime, Duration oneHour) {
         TaskManager manager = new Managers().getDefault();
         InstanceGenerator generator = new InstanceGenerator();
+
+
         // testing creation
         System.out.println("--------testing creation--------");
-        Epic epic = new Epic("epicName", "epicDesc");
+        Epic epic = new Epic("epicName", "epicDesc", nowTime, oneHour);
 
         manager.createEpic(epic);
         System.out.println(epic);
 
-        Task task = new Task("taskName", "taskDescription");
+        Task task = new Task("taskName", "taskDescription", nowTime, oneHour);
         manager.createTask(task);
         System.out.println(task);
 
-        SubTask subTask = new SubTask("subName", "subdescription", 0);
+        SubTask subTask = new SubTask("subName", "subdescription", nowTime, oneHour, 0);
         manager.createSubtask(subTask);
         System.out.println(subTask);
 
@@ -131,6 +145,9 @@ public class Main {
         System.out.println("Looks like everything is working! See you :)");
         System.out.println(manager.getHistory());
 
+    }
+
+    public static void fileBackedTaskManagerUserStory(LocalDateTime nowTime, Duration oneHour) {
         File backupFile = new File(Paths.get("src/ru/prakticum/resources/save_example.csv").toString());
 
         FileBackedTaskManager fbManager = FileBackedTaskManager.loadFromFile(backupFile);
@@ -138,26 +155,25 @@ public class Main {
         System.out.println(fbManager.getSubtasks());
         System.out.println(fbManager.getEpics());
         System.out.println(fbManager.getTasks());
-        Task fbTask = new Task("FB name2", "FB desc2");
-        Task fbTask2 = new Task("FB name2", "FB desc2");
-        Task fbTask3 = new Task("FB name2", "FB desc2");
+        Task fbTask = new Task("FB name2", "FB desc2", nowTime, oneHour);
+        Task fbTask2 = new Task("FB name2", "FB desc2", nowTime, oneHour);
+        Task fbTask3 = new Task("FB name2", "FB desc2", nowTime, oneHour);
         fbManager.createTask(fbTask);
         fbManager.createTask(fbTask2);
         fbManager.createTask(fbTask3);
-        Epic epic3 = new Epic("FB epic", "FB desc");
-        Epic epic4 = new Epic("FB epic", "FB desc");
-        Epic epic5 = new Epic("FB epic", "FB desc");
+        Epic epic3 = new Epic("FB epic", "FB desc", nowTime, oneHour);
+        Epic epic4 = new Epic("FB epic", "FB desc", nowTime, oneHour);
+        Epic epic5 = new Epic("FB epic", "FB desc", nowTime, oneHour);
         fbManager.createEpic(epic3);
         fbManager.createEpic(epic4);
         fbManager.createEpic(epic5);
         System.out.println(fbManager.getEpics());
-        SubTask fbSub = new SubTask("FB sub", "FB desc", 16);
-        SubTask fbSub2 = new SubTask("FB sub", "FB desc", 16);
-        SubTask fbSub3 = new SubTask("FB sub", "FB desc", 16);
+        SubTask fbSub = new SubTask("FB sub", "FB desc", nowTime, oneHour, 2);
+        SubTask fbSub2 = new SubTask("FB sub", "FB desc", nowTime, oneHour, 2);
+        SubTask fbSub3 = new SubTask("FB sub", "FB desc", nowTime, oneHour, 2);
         fbManager.createSubtask(fbSub);
         fbManager.createSubtask(fbSub2);
         fbManager.createSubtask(fbSub3);
         System.out.println(fbManager.getSubtasks());
-
     }
 }

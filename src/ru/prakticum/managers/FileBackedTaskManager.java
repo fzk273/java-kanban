@@ -134,7 +134,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(backUpFile.getAbsolutePath()))) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,date,duration,epic\n");
             for (Task task : getTasks()) {
                 writer.write(task.toString() + "\n");
             }

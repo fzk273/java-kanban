@@ -11,6 +11,8 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 class InMemoryTaskManagerTest {
@@ -18,14 +20,17 @@ class InMemoryTaskManagerTest {
     private Task task;
     private Epic epic;
     private SubTask subTask;
+    private LocalDateTime nowDateTime;
+    private Duration oneHour;
 
     @BeforeEach
     void init() {
+        nowDateTime = LocalDateTime.now();
+        oneHour = Duration.ofHours(1);
         inMemoryTaskManager = Managers.getDefault();
-        task = new Task("task", "desc");
-        epic = new Epic("epic", "desc");
-        subTask = new SubTask("Subtask", "desc1", 0);
-
+        task = new Task("task", "desc", nowDateTime, oneHour);
+        epic = new Epic("epic", "desc", nowDateTime, oneHour);
+        subTask = new SubTask("Subtask", "desc1", nowDateTime, oneHour, 0);
     }
 
     @Test
@@ -239,7 +244,7 @@ class InMemoryTaskManagerTest {
         subTask.setStatus(Status.IN_PROGRESS);
         inMemoryTaskManager.updateSubtask(subTask);
 
-        SubTask subTask2 = new SubTask("Subtask", "desc2", epic.getId());
+        SubTask subTask2 = new SubTask("Subtask", "desc2", nowDateTime, oneHour, epic.getId());
         inMemoryTaskManager.createSubtask(subTask2);
         Assertions.assertEquals(Status.IN_PROGRESS, epic.getStatus());
 

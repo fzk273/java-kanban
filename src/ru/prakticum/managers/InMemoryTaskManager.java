@@ -8,9 +8,9 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.Managers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     protected Integer counter;
@@ -30,6 +30,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task createTask(Task task) {
+        if (taskTimelineValidation(task)) {
+            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+        }
         task.setId(counter);
         tasks.put(counter, task);
         counter++;
@@ -38,6 +41,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask createSubtask(SubTask subTask) {
+        if (taskTimelineValidation(subTask)) {
+            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+        }
         Epic epic = epics.get(subTask.getEpicId());
         if (epic == null) {
             System.out.println("ERROR: There is no epic with id: " + subTask.getEpicId());
@@ -47,6 +53,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(counter, subTask);
         epics.get(subTask.getEpicId()).addSubtask(counter);
         updateEpicStatus(epic);
+        updateEpicDateTime(epic);
         counter++;
         return subTask;
     }
@@ -150,18 +157,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
+        if (taskTimelineValidation(task)) {
+            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+        }
         tasks.put(task.getId(), task);
     }
 
     @Override
     public void updateSubtask(SubTask subtask) {
+        if (taskTimelineValidation(subtask)) {
+            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+        }
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(epics.get(subtask.getEpicId()));
+        updateEpicDateTime(epics.get(subtask.getEpicId()));
+        updateEpicDuration(epics.get(subtask.getEpicId()));
     }
 
     @Override
     public void updateEpic(Epic epic) {
         epics.put(epic.getId(), epic);
+
     }
 
     @Override
@@ -199,9 +215,45 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    public void updateEpicDuration(Epic epic) {
+        Duration epicDuration = getEpicSubtasks(epic).stream()
+                .map(SubTask::getDuration)
+                .filter(Objects::nonNull)
+                .reduce(Duration.ZERO, Duration::plus);
+        epic.setDuration(epicDuration);
+    }
+
+    public void updateEpicDateTime(Epic epic) {
+        LocalDateTime earlistSubtask = getEpicSubtasks(epic).stream()
+                .min(Comparator.comparing(Task::getStartTime)).get().getStartTime();
+        LocalDateTime latestSubtask = getEpicSubtasks(epic).stream()
+                .max(Comparator.comparing(Task::getEndTime)).get().getStartTime();
+        epic.setStartTime(earlistSubtask);
+        epic.setEndTime(latestSubtask);
+
+    }
 
     @Override
     public List<Task> getHistory() {
         return history.getHistory();
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        Comparator<Task> taskComparator = Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()));
+        TreeSet<Task> sortedSet = new TreeSet<>(taskComparator);
+        sortedSet.addAll(tasks.values());
+        sortedSet.addAll(subtasks.values());
+        return sortedSet.stream().toList();
+    }
+
+    public boolean taskTimelineValidation(Task task) {
+        List<Task> taskByPriority = getPrioritizedTasks();
+        return taskByPriority.stream().anyMatch(taskFromStream -> isOverlaping(taskFromStream, task));
+    }
+
+    public boolean isOverlaping(Task task1, Task task2) {
+        if (task1.getStartTime() == null || task2.getStartTime() == null || task1.getEndTime() == null || task2.getEndTime() == null)
+            return false;
+        return !(task1.getEndTime().isBefore(task2.getStartTime()) || task2.getEndTime().isBefore(task1.getStartTime()));
     }
 }

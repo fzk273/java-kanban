@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtaskIds;
-    //TODO fix endTime calculation
+    //TODO не понимаю как правильно проинициализировать класс без null и без того, что бы убрать duration
     private LocalDateTime endTime = null;
     private Duration duration;
     private LocalDateTime startTime;
@@ -32,6 +32,11 @@ public class Epic extends Task {
         return endTime;
     }
 
+    @Override
+    public Duration getDuration() {
+        return duration;
+    }
+
     public ArrayList<Integer> getSubtaskIds() {
         return subtaskIds;
     }
@@ -40,7 +45,7 @@ public class Epic extends Task {
         subtaskIds.add(subtaskId);
     }
 
-    public void setEndTime() {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -59,7 +64,7 @@ public class Epic extends Task {
                 + "," + super.getStatus()
                 + "," + super.getDescription()
                 + "," + super.getStartTime().format(CSVTaskFormat.getDateTimeFormatter())
-                + "," + super.getDuration().toHours()
+                + "," + super.getDuration().toMinutes()
                 + ",";
     }
 }

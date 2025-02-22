@@ -30,7 +30,7 @@ public class SubTask extends Task {
                 + "," + super.getStatus()
                 + "," + super.getDescription()
                 + "," + super.getStartTime().format(CSVTaskFormat.getDateTimeFormatter())
-                + "," + super.getDuration().toHours()
+                + "," + super.getDuration().toMinutes()
                 + "," + getEpicId();
     }
 }

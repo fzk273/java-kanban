@@ -42,7 +42,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return fileBackedTaskManager;
     }
 
-    private  void addTask(Task task) {
+    private void addTask(Task task) {
         if (task.getTaskType().equals(TaskType.TASK)) {
             tasks.put(task.getId(), task);
         }
@@ -53,6 +53,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             SubTask subTask = (SubTask) task;
             subtasks.put(task.getId(), subTask);
             epics.get(subTask.getEpicId()).addSubtask(subTask.getId());
+            super.updateEpicDateTime(epics.get(subTask.getEpicId()));
+            super.updateEpicDuration(epics.get(subTask.getEpicId()));
         }
     }
 

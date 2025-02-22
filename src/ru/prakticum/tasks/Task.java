@@ -77,7 +77,7 @@ public class Task {
                 + "," + status
                 + "," + description
                 + "," + startTime.format(CSVTaskFormat.getDateTimeFormatter())
-                + "," + duration.toHours()
+                + "," + duration.toMinutes()
                 + ",";
     }
 

@@ -3,14 +3,11 @@ package ru.prakticum.tasks;
 import ru.prakticum.enums.TaskType;
 import ru.prakticum.utils.CSVTaskFormat;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 public class SubTask extends Task {
     private Integer epicId;
 
-    public SubTask(String name, String description, LocalDateTime startTime, Duration duration, Integer epicId) {
-        super(name, description, startTime, duration);
+    public SubTask(String name, String description, Integer epicId) {
+        super(name, description);
         this.epicId = epicId;
     }
 
@@ -29,7 +26,7 @@ public class SubTask extends Task {
                 + "," + super.getName()
                 + "," + super.getStatus()
                 + "," + super.getDescription()
-                + "," + super.getStartTime().format(CSVTaskFormat.getDateTimeFormatter())
+                + "," + getStartTime().format(CSVTaskFormat.getDateTimeFormatter())
                 + "," + super.getDuration().toMinutes()
                 + "," + getEpicId();
     }

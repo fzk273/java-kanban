@@ -28,9 +28,13 @@ class InMemoryTaskManagerTest {
         nowDateTime = LocalDateTime.now();
         oneHour = Duration.ofHours(1);
         inMemoryTaskManager = Managers.getDefault();
-        task = new Task("task", "desc", nowDateTime, oneHour);
-        epic = new Epic("epic", "desc", nowDateTime, oneHour);
-        subTask = new SubTask("Subtask", "desc1", nowDateTime, oneHour, 0);
+        task = new Task("task", "desc");
+        task.setStartTime(nowDateTime);
+        task.setDuration(oneHour);
+        epic = new Epic("epic", "desc");
+        subTask = new SubTask("Subtask", "desc1", 0);
+        subTask.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
+        subTask.setDuration(oneHour);
     }
 
     @Test
@@ -60,7 +64,10 @@ class InMemoryTaskManagerTest {
     void checkThatTasksWithGeneratedAndSetIdAreNotConflicting() {
         inMemoryTaskManager.createTask(task);
         task.setId(1);
-        inMemoryTaskManager.createTask(task);
+        Task task1 = new Task("task", "desc");
+        task1.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
+        task1.setDuration(oneHour);
+        inMemoryTaskManager.createTask(task1);
         Assertions.assertEquals(2, inMemoryTaskManager.getTasks().size());
     }
 
@@ -87,8 +94,10 @@ class InMemoryTaskManagerTest {
     void getTasks() {
         inMemoryTaskManager.createTask(task);
         Assertions.assertEquals(1, inMemoryTaskManager.getTasks().size());
-
-        inMemoryTaskManager.createTask(task);
+        Task task1 = new Task("new sub", "new sub");
+        task1.setDuration(oneHour);
+        task1.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
+        inMemoryTaskManager.createTask(task1);
         Assertions.assertEquals(2, inMemoryTaskManager.getTasks().size());
     }
 
@@ -98,7 +107,10 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createSubtask(subTask);
         Assertions.assertEquals(1, inMemoryTaskManager.getSubtasks().size());
 
-        inMemoryTaskManager.createSubtask(subTask);
+        SubTask subTask1 = new SubTask("new sub", "new sub", 0);
+        subTask1.setDuration(oneHour);
+        subTask1.setStartTime(nowDateTime.plus(Duration.ofHours(4)));
+        inMemoryTaskManager.createSubtask(subTask1);
         Assertions.assertEquals(2, inMemoryTaskManager.getSubtasks().size());
     }
 
@@ -133,7 +145,10 @@ class InMemoryTaskManagerTest {
     @Test
     void deleteTasks() {
         inMemoryTaskManager.createTask(task);
-        inMemoryTaskManager.createTask(task);
+        Task task1 = new Task("new sub", "new sub");
+        task1.setDuration(oneHour);
+        task1.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
+        inMemoryTaskManager.createTask(task1);
         Assertions.assertEquals(2, inMemoryTaskManager.getTasks().size());
 
         inMemoryTaskManager.deleteTasks();
@@ -144,7 +159,10 @@ class InMemoryTaskManagerTest {
     void deleteSubtasks() {
         inMemoryTaskManager.createEpic(epic);
         inMemoryTaskManager.createSubtask(subTask);
-        inMemoryTaskManager.createSubtask(subTask);
+        SubTask subTask1 = new SubTask("new sub", "new sub", 0);
+        subTask1.setDuration(oneHour);
+        subTask1.setStartTime(nowDateTime.plus(Duration.ofHours(4)));
+        inMemoryTaskManager.createSubtask(subTask1);
         Assertions.assertEquals(2, inMemoryTaskManager.getSubtasks().size());
 
         inMemoryTaskManager.deleteSubtasks();
@@ -244,7 +262,9 @@ class InMemoryTaskManagerTest {
         subTask.setStatus(Status.IN_PROGRESS);
         inMemoryTaskManager.updateSubtask(subTask);
 
-        SubTask subTask2 = new SubTask("Subtask", "desc2", nowDateTime, oneHour, epic.getId());
+        SubTask subTask2 = new SubTask("Subtask", "desc2", epic.getId());
+        subTask2.setStartTime(nowDateTime.plusHours(4));
+        subTask2.setDuration(oneHour);
         inMemoryTaskManager.createSubtask(subTask2);
         Assertions.assertEquals(Status.IN_PROGRESS, epic.getStatus());
 

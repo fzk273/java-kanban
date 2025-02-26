@@ -45,6 +45,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private void addTask(Task task) {
         if (task.getTaskType().equals(TaskType.TASK)) {
             tasks.put(task.getId(), task);
+
+            if (super.taskStartAndEndTimeIsSet(task) && !super.taskTimelineValidation(task)) {
+                sortedTasks.add(task);
+            }
         }
         if (task.getTaskType().equals(TaskType.EPIC)) {
             epics.put(task.getId(), (Epic) task);
@@ -53,8 +57,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             SubTask subTask = (SubTask) task;
             subtasks.put(task.getId(), subTask);
             epics.get(subTask.getEpicId()).addSubtask(subTask.getId());
-            super.updateEpicDateTime(epics.get(subTask.getEpicId()));
-            super.updateEpicDuration(epics.get(subTask.getEpicId()));
+            if (super.taskStartAndEndTimeIsSet(task) && !super.taskTimelineValidation(task)) {
+                sortedTasks.add(subTask);
+            }
+            super.updateEpicDateTimeAndDuration(epics.get(subTask.getEpicId()));
         }
     }
 
@@ -133,7 +139,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-
     private void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(backUpFile.getAbsolutePath()))) {
             writer.write("id,type,name,status,description,date,duration,epic\n");
@@ -146,7 +151,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             for (SubTask subTask : getSubtasks()) {
                 writer.write(subTask.toString() + "\n");
             }
-
         } catch (IOException e) {
             throw new ManagerSaveException("failed to save history to the a file");
         }

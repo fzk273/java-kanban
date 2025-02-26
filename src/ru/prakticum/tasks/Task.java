@@ -7,7 +7,6 @@ import ru.prakticum.utils.CSVTaskFormat;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Objects;
 
 public class Task {
@@ -18,12 +17,10 @@ public class Task {
     private LocalDateTime startTime;
     private Duration duration;
 
-    public Task(String name, String description, LocalDateTime startTime, Duration duration) {
+    public Task(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.startTime = startTime;
-        this.duration = duration;
     }
 
     public TaskType getTaskType() {
@@ -60,6 +57,14 @@ public class Task {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
     }
 
     public void setDescription(String description) {

@@ -3,38 +3,21 @@ package ru.prakticum.tasks;
 import ru.prakticum.enums.TaskType;
 import ru.prakticum.utils.CSVTaskFormat;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtaskIds;
-    //TODO не понимаю как правильно проинициализировать класс без null и без того, что бы убрать duration
-    private LocalDateTime endTime = null;
-    private Duration duration;
-    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
-    public Epic(String name, String description, LocalDateTime startTime, Duration duration) {
-        super(name, description, startTime, duration);
+    public Epic(String name, String description) {
+        super(name, description);
         subtaskIds = new ArrayList<>();
-        this.startTime = startTime;
-        this.duration = duration;
-
     }
 
     @Override
     public TaskType getTaskType() {
         return TaskType.EPIC;
-    }
-
-    @Override
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    @Override
-    public Duration getDuration() {
-        return duration;
     }
 
     public ArrayList<Integer> getSubtaskIds() {
@@ -47,14 +30,6 @@ public class Epic extends Task {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
-    }
-
-    public void setDuration(Duration duration) {
-        this.duration = duration;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
     }
 
     @Override

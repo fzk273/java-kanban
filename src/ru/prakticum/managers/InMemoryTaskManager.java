@@ -18,6 +18,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Integer, SubTask> subtasks;
     protected HashMap<Integer, Epic> epics;
     private HistoryManager history;
+    protected TreeSet<Task> sortedTasks;
 
     public InMemoryTaskManager() {
         counter = 0;
@@ -25,6 +26,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks = new HashMap<>();
         epics = new HashMap<>();
         history = Managers.getDefaultHistory();
+        sortedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
     }
 
 
@@ -35,6 +37,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
         task.setId(counter);
         tasks.put(counter, task);
+        if (taskStartAndEndTimeIsSet(task)) {
+            sortedTasks.add(task);
+        }
         counter++;
         return task;
     }
@@ -53,7 +58,10 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(counter, subTask);
         epics.get(subTask.getEpicId()).addSubtask(counter);
         updateEpicStatus(epic);
-        updateEpicDateTime(epic);
+        updateEpicDateTimeAndDuration(epic);
+        if (taskStartAndEndTimeIsSet(subTask)) {
+            sortedTasks.add(subTask);
+        }
         counter++;
         return subTask;
     }
@@ -79,6 +87,15 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(epics.values());
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return history.getHistory();
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        return sortedTasks.stream().toList();
     }
 
     @Override
@@ -127,6 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTaskByID(Integer id) {
+        sortedTasks.remove(tasks.get(id));
         tasks.remove(id);
         history.remove(id);
     }
@@ -136,6 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask subTask = subtasks.get(id);
         Epic epic = epics.get(subTask.getEpicId());
         epic.getSubtaskIds().remove(id);
+        sortedTasks.remove(subtasks.get(id));
         subtasks.remove(id);
         history.remove(id);
         updateEpic(epic);
@@ -157,27 +176,33 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
+        sortedTasks.remove(task);
         if (taskTimelineValidation(task)) {
             throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+        }
+        if (taskStartAndEndTimeIsSet(task)) {
+            sortedTasks.add(task);
         }
         tasks.put(task.getId(), task);
     }
 
     @Override
     public void updateSubtask(SubTask subtask) {
+        sortedTasks.remove(subtask);
         if (taskTimelineValidation(subtask)) {
             throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         subtasks.put(subtask.getId(), subtask);
+        if (taskStartAndEndTimeIsSet(subtask)) {
+            sortedTasks.add(subtask);
+        }
         updateEpicStatus(epics.get(subtask.getEpicId()));
-        updateEpicDateTime(epics.get(subtask.getEpicId()));
-        updateEpicDuration(epics.get(subtask.getEpicId()));
+        updateEpicDateTimeAndDuration(epics.get(subtask.getEpicId()));
     }
 
     @Override
     public void updateEpic(Epic epic) {
         epics.put(epic.getId(), epic);
-
     }
 
     @Override
@@ -215,43 +240,32 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    public void updateEpicDuration(Epic epic) {
-        Duration epicDuration = getEpicSubtasks(epic).stream()
-                .map(SubTask::getDuration)
-                .filter(Objects::nonNull)
-                .reduce(Duration.ZERO, Duration::plus);
-        epic.setDuration(epicDuration);
-    }
 
-    public void updateEpicDateTime(Epic epic) {
+    protected void updateEpicDateTimeAndDuration(Epic epic) {
         LocalDateTime earlistSubtask = getEpicSubtasks(epic).stream()
                 .min(Comparator.comparing(Task::getStartTime)).get().getStartTime();
         LocalDateTime latestSubtask = getEpicSubtasks(epic).stream()
                 .max(Comparator.comparing(Task::getEndTime)).get().getStartTime();
         epic.setStartTime(earlistSubtask);
         epic.setEndTime(latestSubtask);
+        Duration epicDuration = getEpicSubtasks(epic).stream()
+                .map(SubTask::getDuration)
+                .filter(Objects::nonNull)
+                .reduce(Duration.ZERO, Duration::plus);
+        epic.setDuration(epicDuration);
 
     }
 
-    @Override
-    public List<Task> getHistory() {
-        return history.getHistory();
+    protected boolean taskStartAndEndTimeIsSet(Task task) {
+        return task.getStartTime() != null && task.getEndTime() != null;
     }
 
-    public List<Task> getPrioritizedTasks() {
-        Comparator<Task> taskComparator = Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()));
-        TreeSet<Task> sortedSet = new TreeSet<>(taskComparator);
-        sortedSet.addAll(tasks.values());
-        sortedSet.addAll(subtasks.values());
-        return sortedSet.stream().toList();
+    protected boolean taskTimelineValidation(Task task) {
+        return sortedTasks.stream()
+                .anyMatch(taskFromStream -> isOverlapping(taskFromStream, task));
     }
 
-    public boolean taskTimelineValidation(Task task) {
-        List<Task> taskByPriority = getPrioritizedTasks();
-        return taskByPriority.stream().anyMatch(taskFromStream -> isOverlaping(taskFromStream, task));
-    }
-
-    public boolean isOverlaping(Task task1, Task task2) {
+    private boolean isOverlapping(Task task1, Task task2) {
         if (task1.getStartTime() == null || task2.getStartTime() == null || task1.getEndTime() == null || task2.getEndTime() == null)
             return false;
         return !(task1.getEndTime().isBefore(task2.getStartTime()) || task2.getEndTime().isBefore(task1.getStartTime()));

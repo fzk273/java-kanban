@@ -23,21 +23,27 @@ public class CSVTaskFormat {
         Status taskStatus = Status.valueOf(splittedLine.get(3));
         String taskDescription = splittedLine.get(4);
         LocalDateTime taskStartTime = LocalDateTime.parse(splittedLine.get(5), getDateTimeFormatter());
-        Duration taskDuration = Duration.ofHours(Long.parseLong(splittedLine.get(6)));
+        Duration taskDuration = Duration.ofMinutes(Long.parseLong(splittedLine.get(6)));
         Task task = null;
         if (taskType.equals(TaskType.TASK)) {
-            task = new Task(taskName, taskDescription, taskStartTime, taskDuration);
+            task = new Task(taskName, taskDescription);
             task.setId(taskId);
+            task.setStartTime(taskStartTime);
+            task.setDuration(taskDuration);
             task.setStatus(taskStatus);
         }
         if (taskType.equals(TaskType.EPIC)) {
-            task = new Epic(taskName, taskDescription, taskStartTime, taskDuration);
+            task = new Epic(taskName, taskDescription);
             task.setId(taskId);
+            task.setStartTime(taskStartTime);
+            task.setDuration(taskDuration);
             task.setStatus(taskStatus);
         }
         if (taskType.equals(TaskType.SUBTASK)) {
-            task = new SubTask(taskName, taskDescription, taskStartTime, taskDuration, Integer.valueOf(splittedLine.get(7)));
+            task = new SubTask(taskName, taskDescription, Integer.valueOf(splittedLine.get(7)));
             task.setId(taskId);
+            task.setStartTime(taskStartTime);
+            task.setDuration(taskDuration);
             task.setStatus(taskStatus);
         }
         return task;

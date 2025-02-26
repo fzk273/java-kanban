@@ -26,9 +26,15 @@ public class FileBackedTaskManagerTest {
     public void init() {
         nowDateTime = LocalDateTime.now();
         oneHour = Duration.ofHours(1);
-        task = new Task("Task name", "Task name", nowDateTime, oneHour);
-        epic = new Epic("Epic name", "Epic desc", nowDateTime, oneHour);
-        subTask = new SubTask("SubTask name", "SubTaskDesc", nowDateTime, oneHour, 1);
+        task = new Task("Task name", "Task name");
+        task.setDuration(oneHour);
+        task.setStartTime(nowDateTime);
+        epic = new Epic("Epic name", "Epic desc");
+        epic.setDuration(oneHour);
+        epic.setStartTime(nowDateTime);
+        subTask = new SubTask("SubTask name", "SubTaskDesc", 1);
+        subTask.setDuration(oneHour);
+        subTask.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
         try {
             tempFile = File.createTempFile("tempfile", null);
             FileWriter fw = new FileWriter(tempFile);

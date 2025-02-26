@@ -17,11 +17,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        //TODO очень много плохих решений в коде, в данном ДЗ.
-        // Я думаю, что где-то в архитектуре решения есть проблемы. Нужна помощь
-        // Тесты на новый функционал и рефакторинг на стримы перепишу после комментариев по решению в целом.
-        // Так же не понимаю, как отрефакторить обновление задачи. В ТЗ сказано проверять задачу на пересечение при обновлении
-        // в таком случае всегда будет вылетать экспешн в случае замены названия или любого поля. need help
+
         LocalDateTime nowTime = LocalDateTime.now();
         Duration oneHour = Duration.ofHours(1);
 
@@ -32,22 +28,22 @@ public class Main {
     }
 
     public static void inMemoryTaskManagerUserStory(LocalDateTime nowTime, Duration oneHour) {
-        TaskManager manager = new Managers().getDefault();
+        TaskManager manager = Managers.getDefault();
         InstanceGenerator generator = new InstanceGenerator();
 
 
         // testing creation
         System.out.println("--------testing creation--------");
-        Epic epic = new Epic("epicName", "epicDesc", nowTime, oneHour);
+        Epic epic = new Epic("epicName", "epicDesc");
 
         manager.createEpic(epic);
         System.out.println(epic);
 
-        Task task = new Task("taskName", "taskDescription", nowTime, oneHour);
+        Task task = new Task("taskName", "taskDescription");
         manager.createTask(task);
         System.out.println(task);
 
-        SubTask subTask = new SubTask("subName", "subdescription", nowTime, oneHour, 0);
+        SubTask subTask = new SubTask("subName", "subdescription", 0);
         manager.createSubtask(subTask);
         System.out.println(subTask);
 
@@ -165,22 +161,22 @@ public class Main {
         System.out.println(fbManager.getEpicById(2).getDuration());
         System.out.println(fbManager.getPrioritizedTasks());
 
-//        Task fbTask = new Task("FB name2", "FB desc2", nowTime, oneHour);
-//        Task fbTask2 = new Task("FB name2", "FB desc2", nowTime, oneHour);
-//        Task fbTask3 = new Task("FB name2", "FB desc2", nowTime, oneHour);
+//        Task fbTask = new Task("FB name2", "FB desc2");
+//        Task fbTask2 = new Task("FB name2", "FB desc2");
+//        Task fbTask3 = new Task("FB name2", "FB desc2");
 //        fbManager.createTask(fbTask);
 //        fbManager.createTask(fbTask2);
 //        fbManager.createTask(fbTask3);
-//        Epic epic3 = new Epic("FB epic", "FB desc", nowTime, oneHour);
-//        Epic epic4 = new Epic("FB epic", "FB desc", nowTime, oneHour);
-//        Epic epic5 = new Epic("FB epic", "FB desc", nowTime, oneHour);
+//        Epic epic3 = new Epic("FB epic", "FB desc");
+//        Epic epic4 = new Epic("FB epic", "FB desc");
+//        Epic epic5 = new Epic("FB epic", "FB desc");
 //        fbManager.createEpic(epic3);
 //        fbManager.createEpic(epic4);
 //        fbManager.createEpic(epic5);
 //        System.out.println(fbManager.getEpics());
-//        SubTask fbSub = new SubTask("FB sub", "FB desc", nowTime, oneHour, 2);
-//        SubTask fbSub2 = new SubTask("FB sub", "FB desc", nowTime, oneHour, 2);
-//        SubTask fbSub3 = new SubTask("FB sub", "FB desc", nowTime, oneHour, 2);
+//        SubTask fbSub = new SubTask("FB sub", "FB desc", 2);
+//        SubTask fbSub2 = new SubTask("FB sub", "FB desc", 2);
+//        SubTask fbSub3 = new SubTask("FB sub", "FB desc", 2);
 //        fbManager.createSubtask(fbSub);
 //        fbManager.createSubtask(fbSub2);
 //        fbManager.createSubtask(fbSub3);

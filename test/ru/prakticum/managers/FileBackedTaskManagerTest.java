@@ -10,6 +10,8 @@ import ru.prakticum.tasks.Task;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManagerTest {
     private File tempFile;
@@ -17,12 +19,22 @@ public class FileBackedTaskManagerTest {
     private Task task;
     private Epic epic;
     private SubTask subTask;
+    private LocalDateTime nowDateTime;
+    private Duration oneHour;
 
     @BeforeEach
     public void init() {
+        nowDateTime = LocalDateTime.now();
+        oneHour = Duration.ofHours(1);
         task = new Task("Task name", "Task name");
+        task.setDuration(oneHour);
+        task.setStartTime(nowDateTime);
         epic = new Epic("Epic name", "Epic desc");
+        epic.setDuration(oneHour);
+        epic.setStartTime(nowDateTime);
         subTask = new SubTask("SubTask name", "SubTaskDesc", 1);
+        subTask.setDuration(oneHour);
+        subTask.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
         try {
             tempFile = File.createTempFile("tempfile", null);
             FileWriter fw = new FileWriter(tempFile);

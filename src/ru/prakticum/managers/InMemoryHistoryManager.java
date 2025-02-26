@@ -3,10 +3,7 @@ package ru.prakticum.managers;
 import ru.prakticum.interfaces.HistoryManager;
 import ru.prakticum.tasks.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class InMemoryHistoryManager implements HistoryManager {

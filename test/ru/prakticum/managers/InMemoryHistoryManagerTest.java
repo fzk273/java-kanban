@@ -9,23 +9,35 @@ import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 import ru.prakticum.utils.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
-class InMemoryHistoryManagerTest {
+public class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
     private Task task;
     private Epic epic;
     private SubTask subTask;
+    private LocalDateTime nowDateTime;
+    private Duration oneHour;
 
     @BeforeEach
     void init() {
+        nowDateTime = LocalDateTime.now();
+        oneHour = Duration.ofHours(1);
         historyManager = Managers.getDefaultHistory();
         task = new Task("task", "desc");
         task.setId(0);
+        task.setDuration(oneHour);
+        task.setStartTime(nowDateTime);
         epic = new Epic("epic", "desc");
         epic.setId(1);
+        epic.setDuration(oneHour);
+        epic.setStartTime(nowDateTime);
         subTask = new SubTask("subtask", "desc", 1);
         subTask.setId(2);
+        subTask.setDuration(oneHour);
+        subTask.setStartTime(nowDateTime);
     }
 
     @Test

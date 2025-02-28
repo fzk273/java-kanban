@@ -261,6 +261,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     protected boolean taskTimelineValidation(Task task) {
+
         return sortedTasks.stream()
                 .anyMatch(taskFromStream -> isOverlapping(taskFromStream, task));
     }

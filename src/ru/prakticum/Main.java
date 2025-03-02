@@ -10,13 +10,28 @@ import ru.prakticum.utils.Managers;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager manager = new Managers().getDefault();
+
+        LocalDateTime nowTime = LocalDateTime.now();
+        Duration oneHour = Duration.ofHours(1);
+
+//        inMemoryTaskManagerUserStory(nowTime, oneHour);
+        fileBackedTaskManagerUserStory(nowTime, oneHour);
+
+
+    }
+
+    public static void inMemoryTaskManagerUserStory(LocalDateTime nowTime, Duration oneHour) {
+        TaskManager manager = Managers.getDefault();
         InstanceGenerator generator = new InstanceGenerator();
+
+
         // testing creation
         System.out.println("--------testing creation--------");
         Epic epic = new Epic("epicName", "epicDesc");
@@ -131,6 +146,9 @@ public class Main {
         System.out.println("Looks like everything is working! See you :)");
         System.out.println(manager.getHistory());
 
+    }
+
+    public static void fileBackedTaskManagerUserStory(LocalDateTime nowTime, Duration oneHour) {
         File backupFile = new File(Paths.get("src/ru/prakticum/resources/save_example.csv").toString());
 
         FileBackedTaskManager fbManager = FileBackedTaskManager.loadFromFile(backupFile);
@@ -138,26 +156,30 @@ public class Main {
         System.out.println(fbManager.getSubtasks());
         System.out.println(fbManager.getEpics());
         System.out.println(fbManager.getTasks());
-        Task fbTask = new Task("FB name2", "FB desc2");
-        Task fbTask2 = new Task("FB name2", "FB desc2");
-        Task fbTask3 = new Task("FB name2", "FB desc2");
-        fbManager.createTask(fbTask);
-        fbManager.createTask(fbTask2);
-        fbManager.createTask(fbTask3);
-        Epic epic3 = new Epic("FB epic", "FB desc");
-        Epic epic4 = new Epic("FB epic", "FB desc");
-        Epic epic5 = new Epic("FB epic", "FB desc");
-        fbManager.createEpic(epic3);
-        fbManager.createEpic(epic4);
-        fbManager.createEpic(epic5);
-        System.out.println(fbManager.getEpics());
-        SubTask fbSub = new SubTask("FB sub", "FB desc", 16);
-        SubTask fbSub2 = new SubTask("FB sub", "FB desc", 16);
-        SubTask fbSub3 = new SubTask("FB sub", "FB desc", 16);
-        fbManager.createSubtask(fbSub);
-        fbManager.createSubtask(fbSub2);
-        fbManager.createSubtask(fbSub3);
-        System.out.println(fbManager.getSubtasks());
+        System.out.println(fbManager.getEpicById(2).getStartTime());
+        System.out.println(fbManager.getEpicById(2).getEndTime());
+        System.out.println(fbManager.getEpicById(2).getDuration());
+        System.out.println(fbManager.getPrioritizedTasks());
 
+//        Task fbTask = new Task("FB name2", "FB desc2");
+//        Task fbTask2 = new Task("FB name2", "FB desc2");
+//        Task fbTask3 = new Task("FB name2", "FB desc2");
+//        fbManager.createTask(fbTask);
+//        fbManager.createTask(fbTask2);
+//        fbManager.createTask(fbTask3);
+//        Epic epic3 = new Epic("FB epic", "FB desc");
+//        Epic epic4 = new Epic("FB epic", "FB desc");
+//        Epic epic5 = new Epic("FB epic", "FB desc");
+//        fbManager.createEpic(epic3);
+//        fbManager.createEpic(epic4);
+//        fbManager.createEpic(epic5);
+//        System.out.println(fbManager.getEpics());
+//        SubTask fbSub = new SubTask("FB sub", "FB desc", 2);
+//        SubTask fbSub2 = new SubTask("FB sub", "FB desc", 2);
+//        SubTask fbSub3 = new SubTask("FB sub", "FB desc", 2);
+//        fbManager.createSubtask(fbSub);
+//        fbManager.createSubtask(fbSub2);
+//        fbManager.createSubtask(fbSub3);
+//        System.out.println(fbManager.getSubtasks());
     }
 }

@@ -1,30 +1,26 @@
 package ru.prakticum.managers;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
-public class FileBackedTaskManagerTest extends TaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private File tempFile;
 
     @BeforeEach
-    public void init() {
-        try {
-            tempFile = File.createTempFile("tempfile", null);
-            FileWriter fw = new FileWriter(tempFile);
-            String basicFileContent = "id,type,name,status,description,epic\n";
-            fw.write(basicFileContent);
-            fw.flush();
-            taskManager = FileBackedTaskManager.loadFromFile(tempFile);
-            fw.close();
-        } catch (IOException e) {
-            throw new RuntimeException("cannot create a file");
-        }
+    public void init() throws IOException {
+        tempFile = File.createTempFile("tempfile", null);
+        taskManager = FileBackedTaskManager.loadFromFile(tempFile);
         super.init();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        tempFile.delete();
     }
 
     @Test

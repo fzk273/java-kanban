@@ -1,6 +1,7 @@
 package ru.prakticum.managers;
 
 import ru.prakticum.enums.Status;
+import ru.prakticum.enums.TaskType;
 import ru.prakticum.interfaces.HistoryManager;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
@@ -94,6 +95,7 @@ public class InMemoryTaskManager implements TaskManager {
         return history.getHistory();
     }
 
+    @Override
     public List<Task> getPrioritizedTasks() {
         return sortedTasks.stream().toList();
     }
@@ -121,6 +123,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer taskId : tasks.keySet()) {
             history.remove(taskId);
         }
+        sortedTasks.removeIf(task -> task.getTaskType() == TaskType.TASK);
         tasks.clear();
     }
 
@@ -133,6 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtaskIds().clear();
             epic.setStatus(Status.NEW);
         }
+        sortedTasks.removeIf(task -> task.getTaskType() == TaskType.SUBTASK);
         subtasks.clear();
     }
 
@@ -140,6 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpics() {
         epics.clear();
         subtasks.clear();
+        sortedTasks.removeIf(task -> task.getTaskType() == TaskType.EPIC);
     }
 
     @Override
@@ -167,8 +172,9 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         for (Integer subtaskId : epic.getSubtaskIds()) {
-            subtasks.remove(subtaskId);
+            sortedTasks.remove(subtasks.get(subtaskId));
             history.remove(id);
+            subtasks.remove(subtaskId);
         }
         epics.remove(id);
         history.remove(id);
@@ -176,7 +182,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        sortedTasks.remove(task);
+        sortedTasks.remove(tasks.get(task.getId()));
         if (taskTimelineValidation(task)) {
             throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
@@ -188,7 +194,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(SubTask subtask) {
-        sortedTasks.remove(subtask);
+        sortedTasks.remove(subtasks.get(subtask.getId()));
         if (taskTimelineValidation(subtask)) {
             throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }

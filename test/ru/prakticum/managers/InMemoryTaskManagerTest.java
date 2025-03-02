@@ -5,48 +5,49 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.prakticum.tasks.Task;
 
+import java.io.IOException;
 import java.time.Duration;
 
-class InMemoryTaskManagerTest extends TaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @BeforeEach
-    void init() {
+    void init() throws IOException {
         taskManager = new InMemoryTaskManager();
         super.init();
     }
 
     @Test
     void tasksWithSameIdsAreEqual() {
-        inMemoryTaskManager.createTask(task);
-        Assertions.assertEquals(task, inMemoryTaskManager.getTaskById(0));
+        taskManager.createTask(task);
+        Assertions.assertEquals(task, taskManager.getTaskById(0));
     }
 
     @Test
     void inheritorsOfTheTaskWithSameIdsAreEqual() {
-        inMemoryTaskManager.createEpic(epic);
-        Assertions.assertEquals(epic, inMemoryTaskManager.getEpicById(0));
+        taskManager.createEpic(epic);
+        Assertions.assertEquals(epic, taskManager.getEpicById(0));
 
-        inMemoryTaskManager.createSubtask(subTask);
-        Assertions.assertEquals(subTask, inMemoryTaskManager.getSubtaskById(1));
+        taskManager.createSubtask(subTask);
+        Assertions.assertEquals(subTask, taskManager.getSubtaskById(1));
     }
 
 
     @Test
     void checkAllTasksSubtasksEpicsAreEmptyAfterCreation() {
-        Assertions.assertTrue(inMemoryTaskManager.getTasks().isEmpty());
-        Assertions.assertTrue(inMemoryTaskManager.getSubtasks().isEmpty());
-        Assertions.assertTrue(inMemoryTaskManager.getEpics().isEmpty());
+        Assertions.assertTrue(taskManager.getTasks().isEmpty());
+        Assertions.assertTrue(taskManager.getSubtasks().isEmpty());
+        Assertions.assertTrue(taskManager.getEpics().isEmpty());
     }
 
     @Test
     void checkThatTasksWithGeneratedAndSetIdAreNotConflicting() {
-        inMemoryTaskManager.createTask(task);
+        taskManager.createTask(task);
         task.setId(1);
         Task task1 = new Task("task", "desc");
         task1.setStartTime(nowDateTime.plus(Duration.ofHours(2)));
         task1.setDuration(oneHour);
-        inMemoryTaskManager.createTask(task1);
-        Assertions.assertEquals(2, inMemoryTaskManager.getTasks().size());
+        taskManager.createTask(task1);
+        Assertions.assertEquals(2, taskManager.getTasks().size());
     }
 
     @Test

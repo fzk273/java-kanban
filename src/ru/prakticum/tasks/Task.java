@@ -3,7 +3,10 @@ package ru.prakticum.tasks;
 
 import ru.prakticum.enums.Status;
 import ru.prakticum.enums.TaskType;
+import ru.prakticum.utils.CSVTaskFormat;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -11,6 +14,8 @@ public class Task {
     private Status status;
     private String name;
     private String description;
+    private LocalDateTime startTime;
+    private Duration duration;
 
     public Task(String name, String description) {
         this.name = name;
@@ -38,10 +43,29 @@ public class Task {
         return description;
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
 
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
 
     public void setDescription(String description) {
         this.description = description;
@@ -57,6 +81,8 @@ public class Task {
                 + "," + name
                 + "," + status
                 + "," + description
+                + "," + startTime.format(CSVTaskFormat.getDateTimeFormatter())
+                + "," + duration.toMinutes()
                 + ",";
     }
 

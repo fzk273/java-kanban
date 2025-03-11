@@ -6,9 +6,15 @@ import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 import ru.prakticum.tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class InstanceGenerator {
+    private LocalDateTime nowTime = LocalDateTime.now();
+    private Duration oneHour = Duration.ofHours(1);
 
     public void createTasks(TaskManager manager, Integer numberOfTasks) {
+
         for (int i = 0; i < numberOfTasks; i++) {
             Task task = new Task("task" + i, "descr" + i);
             manager.createTask(task);

@@ -1,6 +1,7 @@
 package ru.prakticum.tasks;
 
 import ru.prakticum.enums.TaskType;
+import ru.prakticum.utils.CSVTaskFormat;
 
 public class SubTask extends Task {
     private Integer epicId;
@@ -25,6 +26,8 @@ public class SubTask extends Task {
                 + "," + super.getName()
                 + "," + super.getStatus()
                 + "," + super.getDescription()
+                + "," + getStartTime().format(CSVTaskFormat.getDateTimeFormatter())
+                + "," + super.getDuration().toMinutes()
                 + "," + getEpicId();
     }
 }

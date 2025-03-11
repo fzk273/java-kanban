@@ -26,6 +26,8 @@ public interface TaskManager {
 
     Epic getEpicById(Integer id);
 
+    List<Task> getPrioritizedTasks();
+
     void deleteTasks();
 
     void deleteSubtasks();

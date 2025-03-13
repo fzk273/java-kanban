@@ -1,6 +1,10 @@
 package ru.prakticum.tasks;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ru.prakticum.adapters.DurationAdapter;
+import ru.prakticum.adapters.LocalDateTimeAdapter;
 import ru.prakticum.enums.Status;
 import ru.prakticum.enums.TaskType;
 import ru.prakticum.utils.CSVTaskFormat;
@@ -16,6 +20,10 @@ public class Task {
     private String description;
     private LocalDateTime startTime;
     private Duration duration;
+
+    public Task() {
+        this.status = Status.NEW; // Default status
+    }
 
     public Task(String name, String description) {
         this.name = name;
@@ -84,6 +92,14 @@ public class Task {
                 + "," + startTime.format(CSVTaskFormat.getDateTimeFormatter())
                 + "," + duration.toMinutes()
                 + ",";
+    }
+
+    public String toJson() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
+        return gson.toJson(this);
     }
 
     @Override

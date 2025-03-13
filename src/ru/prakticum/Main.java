@@ -9,20 +9,30 @@ import ru.prakticum.utils.InstanceGenerator;
 import ru.prakticum.utils.Managers;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Main {
-
+    //TODO посмотри пожалуйста код, я знаю, что он очень кривой, но как лучше сделать, я не понял
+    //TODO про тесты помню. Хочу сначала нормально код реализовать. заранее сори за говнокод :)
     public static void main(String[] args) {
 
         LocalDateTime nowTime = LocalDateTime.now();
         Duration oneHour = Duration.ofHours(1);
 
 //        inMemoryTaskManagerUserStory(nowTime, oneHour);
-        fileBackedTaskManagerUserStory(nowTime, oneHour);
+//        fileBackedTaskManagerUserStory(nowTime, oneHour);
+        //TODO не уверен, что правильно понял из тз, как запускать сервер. нид хэлп
+
+        HttpTaskServer httpTaskServer = new HttpTaskServer();
+        try {
+            httpTaskServer.main();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
     }

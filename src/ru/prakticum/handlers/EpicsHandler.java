@@ -1,25 +1,19 @@
 package ru.prakticum.handlers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import ru.prakticum.adapters.DurationAdapter;
-import ru.prakticum.adapters.LocalDateTimeAdapter;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
-import ru.prakticum.tasks.SubTask;
-import ru.prakticum.utils.Managers;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
-//TODO практически уверен, что копипастить хендлер не лучшая идея. Как реализовать лучше?
 public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
+    public EpicsHandler(TaskManager taskManager) {
+        super(taskManager);
+    }
+
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         String method = httpExchange.getRequestMethod();
@@ -27,47 +21,39 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
         InputStream inputStream = httpExchange.getRequestBody();
         String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         String[] splittedPath = path.split("/");
-        TaskManager taskManager = Managers.getFileBackedTaskManager();
         switch (method) {
             case "POST":
-                Gson gson = new GsonBuilder()
-                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                        .registerTypeAdapter(Duration.class, new DurationAdapter()).create();
                 Epic epic = gson.fromJson(body, Epic.class);
                 Epic newEpic = taskManager.createEpic(epic);
-                super.sendCreated(httpExchange, newEpic.toJson());
+                sendText(httpExchange, gson.toJson(newEpic), 201);
                 break;
             case "GET":
                 if (splittedPath.length > 3 && splittedPath[3].equals("subtasks")) {
                     Integer id = Integer.parseInt(splittedPath[2]);
-                    String epicSubtasks = taskManager.getEpicSubtasks(taskManager.getEpicById(id)).stream()
-                            .map(SubTask::toJson)
-                            .collect(Collectors.joining(","));
-                    super.sendText(httpExchange, "{" + epicSubtasks + "}");
+                    String epicSubtasks = gson.toJson(taskManager.getEpicSubtasks(taskManager.getEpicById(id)));
+                    sendText(httpExchange, epicSubtasks, 200);
                 } else if (splittedPath.length > 2) {
                     Integer id = Integer.parseInt(splittedPath[2]);
                     Epic epic1 = taskManager.getEpicById(id);
                     if (epic1 != null) {
-                        super.sendText(httpExchange, epic1.toJson());
+                        sendText(httpExchange, gson.toJson(epic1), 200);
                     } else {
-                        super.sendNotFound(httpExchange, "there is no subtask with id: " + id);
+                        sendText(httpExchange, "there is no subtask with id: " + id, 404);
                     }
                 } else {
-                    String epicsJson = taskManager.getEpics().stream()
-                            .map(Epic::toJson)
-                            .collect(Collectors.joining(","));
-                    super.sendText(httpExchange, "{" + epicsJson + "}");
+                    String epicsJson = gson.toJson(taskManager.getEpics());
+                    sendText(httpExchange, epicsJson, 200);
                 }
                 break;
             case "DELETE":
                 if (splittedPath.length > 2) {
                     Integer id = Integer.parseInt(splittedPath[2]);
                     taskManager.deleteEpicById(id);
-                    super.sendText(httpExchange, "");
+                    sendText(httpExchange, "", 200);
                 }
                 break;
             default:
-                super.sendText(httpExchange, "ERROR! there is no method: " + method + " for this path");
+                sendText(httpExchange, "ERROR! there is no method: " + method + " for this path", 405);
         }
 
     }

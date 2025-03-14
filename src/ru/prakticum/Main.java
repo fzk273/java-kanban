@@ -16,24 +16,24 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Main {
-    //TODO посмотри пожалуйста код, я знаю, что он очень кривой, но как лучше сделать, я не понял
-    //TODO про тесты помню. Хочу сначала нормально код реализовать. заранее сори за говнокод :)
     public static void main(String[] args) {
 
-        LocalDateTime nowTime = LocalDateTime.now();
-        Duration oneHour = Duration.ofHours(1);
+//        LocalDateTime nowTime = LocalDateTime.now();
+//        Duration oneHour = Duration.ofHours(1);
 
 //        inMemoryTaskManagerUserStory(nowTime, oneHour);
 //        fileBackedTaskManagerUserStory(nowTime, oneHour);
-        //TODO не уверен, что правильно понял из тз, как запускать сервер. нид хэлп
+//        try {
+//            fileBackedHttpServerUserStory();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
-        HttpTaskServer httpTaskServer = new HttpTaskServer();
         try {
-            httpTaskServer.main();
+            inMemoryHttpServerUserStory();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 
     }
 
@@ -191,5 +191,18 @@ public class Main {
 //        fbManager.createSubtask(fbSub2);
 //        fbManager.createSubtask(fbSub3);
 //        System.out.println(fbManager.getSubtasks());
+    }
+
+    public static void fileBackedHttpServerUserStory() throws IOException {
+        TaskManager taskManager = Managers.getFileBackedTaskManager();
+        HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
+        httpTaskServer.start();
+    }
+
+
+    public static void inMemoryHttpServerUserStory() throws IOException {
+        TaskManager taskManager = Managers.getDefault();
+        HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
+        httpTaskServer.start();
     }
 }

@@ -1,6 +1,7 @@
 package ru.prakticum.http;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import ru.prakticum.tasks.SubTask;
 
 import java.io.IOException;
@@ -9,23 +10,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class EpicsHandlerTest extends InitHandlers {
-    private String epicJson;
-
-    @BeforeAll
-    public static void initServer() throws IOException {
-        InitHandlers.initServer();
-    }
-
-    @BeforeEach
-    public void init() {
-        super.init();
-
-    }
-
-    @AfterAll
-    public static void terminate() {
-        InitHandlers.terminate();
-    }
 
     @Test
     public void epicGetByIdIs200() throws IOException, InterruptedException {
@@ -35,8 +19,6 @@ public class EpicsHandlerTest extends InitHandlers {
         request = HttpRequest.newBuilder(uri.resolve("./epics/" + epicId)).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, response.statusCode());
-        //TODO тут постоянно возникает java.io.IOException: HTTP/1.1 header parser received no bytes не понимаю, что не так
-        // если только этот тест отдельно запустить, всё норм
     }
 
     @Test
@@ -48,6 +30,7 @@ public class EpicsHandlerTest extends InitHandlers {
 
     @Test
     public void epicCreationIs201() throws IOException, InterruptedException {
+        Assertions.assertEquals(0, taskManager.getEpics().size());
         epic.setDescription("new desc");
         epicJson = gson.toJson(epic);
         request = HttpRequest.newBuilder(uri.resolve("./epics"))
@@ -57,30 +40,22 @@ public class EpicsHandlerTest extends InitHandlers {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(201, response.statusCode());
-    }
-
-    @Test
-    public void epicUpdateIs201() throws IOException, InterruptedException {
-        epic.setDescription("new desc");
-        epicJson = gson.toJson(epic);
-        request = HttpRequest.newBuilder(uri.resolve("./epics"))
-                .setHeader("Content-Type", "application/json")
-                .setHeader("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(epicJson, StandardCharsets.UTF_8))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(201, response.statusCode());
+        Assertions.assertEquals(1, taskManager.getEpics().size());
     }
 
     @Test
     public void epicDeletionIs200() throws IOException, InterruptedException {
-        request = HttpRequest.newBuilder(uri.resolve("./epics/1"))
+        taskManager.createEpic(epic);
+        Assertions.assertEquals(1, taskManager.getEpics().size());
+
+        request = HttpRequest.newBuilder(uri.resolve("./epics/" + epic.getId()))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
                 .DELETE()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(0, taskManager.getEpics().size());
 
     }
 
@@ -93,6 +68,7 @@ public class EpicsHandlerTest extends InitHandlers {
         request = HttpRequest.newBuilder(uri.resolve("./epics/" + epicId + "/subtasks")).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(1, taskManager.getSubtasks().size());
     }
 
     @Test

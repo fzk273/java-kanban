@@ -3,6 +3,7 @@ package ru.prakticum.handlers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import ru.prakticum.adapters.DurationAdapter;
 import ru.prakticum.adapters.LocalDateTimeAdapter;
 import ru.prakticum.interfaces.TaskManager;
@@ -12,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class BaseHttpHandler {
+public class BaseHttpHandler implements HttpHandler {
     protected Gson gson;
     protected TaskManager taskManager;
 
@@ -35,4 +36,7 @@ public class BaseHttpHandler {
         h.close();
     }
 
+    @Override
+    public void handle(HttpExchange httpExchange) throws IOException {
+    }
 }

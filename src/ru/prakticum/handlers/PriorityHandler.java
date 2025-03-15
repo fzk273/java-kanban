@@ -1,13 +1,12 @@
 package ru.prakticum.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.prakticum.interfaces.TaskManager;
 
 import java.io.IOException;
 
 
-public class PriorityHandler extends BaseHttpHandler implements HttpHandler {
+public class PriorityHandler extends BaseHttpHandler {
     public PriorityHandler(TaskManager taskManager) {
         super(taskManager);
     }

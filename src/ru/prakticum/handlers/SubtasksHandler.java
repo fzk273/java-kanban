@@ -1,7 +1,6 @@
 package ru.prakticum.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.SubTask;
 
@@ -9,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
+public class SubtasksHandler extends BaseHttpHandler {
     public SubtasksHandler(TaskManager taskManager) {
         super(taskManager);
     }
@@ -24,14 +23,17 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
         switch (method) {
             case "POST":
                 SubTask subTask = gson.fromJson(body, SubTask.class);
-                if (subTask.getId() == null) {
-                    //TODO вообще не понимаю как реализоывать проверку на пересечение из этого класа. need help
-//                    sendHasInteractions(httpExchange, "subtask is overlapping");
-                    SubTask subTask1 = taskManager.createSubtask(subTask);
-                    sendText(httpExchange, gson.toJson(subTask1), 201);
-                } else {
-                    taskManager.updateSubtask(subTask);
-                    sendText(httpExchange, gson.toJson(subTask), 201);
+                try {
+                    if (subTask.getId() == null) {
+                        SubTask subTask1 = taskManager.createSubtask(subTask);
+                        sendText(httpExchange, gson.toJson(subTask1), 201);
+                    } else {
+                        taskManager.updateSubtask(subTask);
+                        sendText(httpExchange, gson.toJson(subTask), 201);
+                    }
+                } catch (IllegalArgumentException exception){
+                    sendText(httpExchange, "subtask is ovelapping", 406);
+
                 }
                 break;
             case "GET":

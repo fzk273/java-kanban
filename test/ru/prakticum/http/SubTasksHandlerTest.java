@@ -15,23 +15,15 @@ public class SubTasksHandlerTest extends InitHandlers {
     private SubTask subTask1;
     private String subTask1Json;
 
-    @BeforeAll
-    public static void initServer() throws IOException {
-        InitHandlers.initServer();
-    }
-
     @BeforeEach
     public void init() {
         super.init();
-        subTask1 = new SubTask("subtask1", "subdesc1", 0);
+        taskManager.createEpic(epic);
+        Integer epicId = taskManager.getEpics().getFirst().getId();
+        subTask1 = new SubTask("subtask1", "subdesc1", epicId);
         subTask1.setDuration(Duration.ofHours(5));
         subTask1.setStartTime(LocalDateTime.now().plusHours(2));
         subTask1Json = gson.toJson(subTask1);
-    }
-
-    @AfterAll
-    public static void terminate() {
-        InitHandlers.terminate();
     }
 
     @Test
@@ -56,6 +48,7 @@ public class SubTasksHandlerTest extends InitHandlers {
 
     @Test
     public void subTaskCreationIs201() throws IOException, InterruptedException {
+        Assertions.assertEquals(0, taskManager.getSubtasks().size());
         request = HttpRequest.newBuilder(uri.resolve("./subtasks"))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
@@ -63,22 +56,38 @@ public class SubTasksHandlerTest extends InitHandlers {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(201, response.statusCode());
+        Assertions.assertEquals(1, taskManager.getSubtasks().size());
+
     }
 
     @Test
     public void subTaskUpdateIs201() throws IOException, InterruptedException {
+        taskManager.createSubtask(subTask1);
+        Assertions.assertEquals(1, taskManager.getSubtasks().size());
+        SubTask subTask2 = taskManager.getSubtaskById(subTask1.getId());
+        subTask2.setDescription("my new desc");
+        String subTask2Json = gson.toJson(subTask2);
         request = HttpRequest.newBuilder(uri.resolve("./subtasks"))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(subTaskJson, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(subTask2Json, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(201, response.statusCode());
+        Assertions.assertEquals(1, taskManager.getSubtasks().size());
+
     }
 
     @Test
-    public void subTaskOverlappingIs406() {
-        //TODO не понимаю как имлементировать, поскольку не получаю 406 в создании таски
+    public void subTaskOverlappingIs406() throws IOException, InterruptedException {
+        request = HttpRequest.newBuilder(uri.resolve("./subtasks"))
+                .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(subTask1Json, StandardCharsets.UTF_8))
+                .build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(406, response.statusCode());
     }
 
     @Test
@@ -87,6 +96,8 @@ public class SubTasksHandlerTest extends InitHandlers {
         Epic epicFromMemory = taskManager.getEpics().getFirst();
         SubTask newSubtask = new SubTask("name", "desc", epicFromMemory.getId());
         taskManager.createSubtask(newSubtask);
+        Assertions.assertEquals(1, taskManager.getSubtasks().size());
+
         Integer subtaskId = taskManager.getSubtasks().getFirst().getId();
         request = HttpRequest.newBuilder(uri.resolve("./subtasks/" + subtaskId))
                 .setHeader("Content-Type", "application/json")
@@ -95,7 +106,6 @@ public class SubTasksHandlerTest extends InitHandlers {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, response.statusCode());
-
+        Assertions.assertEquals(0, taskManager.getSubtasks().size());
     }
-
 }

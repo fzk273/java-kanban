@@ -1,12 +1,11 @@
 package ru.prakticum.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.prakticum.interfaces.TaskManager;
 
 import java.io.IOException;
 
-public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
+public class HistoryHandler extends BaseHttpHandler {
     public HistoryHandler(TaskManager taskManager) {
         super(taskManager);
     }

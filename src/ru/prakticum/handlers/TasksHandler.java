@@ -1,7 +1,6 @@
 package ru.prakticum.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Task;
 
@@ -9,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class TasksHandler extends BaseHttpHandler implements HttpHandler {
+public class TasksHandler extends BaseHttpHandler {
 
     public TasksHandler(TaskManager taskManager) {
         super(taskManager);
@@ -25,15 +24,18 @@ public class TasksHandler extends BaseHttpHandler implements HttpHandler {
         switch (method) {
             case "POST":
                 Task task = gson.fromJson(body, Task.class);
-                if (task.getId() == null) {
-                    Task newTask = taskManager.createTask(task);
-                    sendText(httpExchange, gson.toJson(newTask), 201);
-                } else {
-                    //TODO вообще не понимаю как реализоывать проверку на пересечение из этого класа. need help
-//                    super.sendHasInteractions(httpExchange, "task is overlapping");
-                    taskManager.updateTask(task);
-                    sendText(httpExchange, gson.toJson(task), 201);
+                try {
+                    if (task.getId() == null) {
+                        Task newTask = taskManager.createTask(task);
+                        sendText(httpExchange, gson.toJson(newTask), 201);
+                    } else {
+                        taskManager.updateTask(task);
+                        sendText(httpExchange, gson.toJson(task), 201);
+                    }
+                } catch (IllegalArgumentException exception){
+                    sendText(httpExchange, "task is ovelapping", 406);
                 }
+
                 break;
             case "GET":
                 if (splittedPath.length > 2) {

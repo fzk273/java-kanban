@@ -17,6 +17,10 @@ public class Task {
     private LocalDateTime startTime;
     private Duration duration;
 
+    public Task() {
+        this.status = Status.NEW; // Default status
+    }
+
     public Task(String name, String description) {
         this.name = name;
         this.description = description;

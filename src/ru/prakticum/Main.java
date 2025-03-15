@@ -9,21 +9,31 @@ import ru.prakticum.utils.InstanceGenerator;
 import ru.prakticum.utils.Managers;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Main {
-
     public static void main(String[] args) {
 
-        LocalDateTime nowTime = LocalDateTime.now();
-        Duration oneHour = Duration.ofHours(1);
+//        LocalDateTime nowTime = LocalDateTime.now();
+//        Duration oneHour = Duration.ofHours(1);
 
 //        inMemoryTaskManagerUserStory(nowTime, oneHour);
-        fileBackedTaskManagerUserStory(nowTime, oneHour);
+//        fileBackedTaskManagerUserStory(nowTime, oneHour);
+//        try {
+//            fileBackedHttpServerUserStory();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
+        try {
+            inMemoryHttpServerUserStory();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -181,5 +191,18 @@ public class Main {
 //        fbManager.createSubtask(fbSub2);
 //        fbManager.createSubtask(fbSub3);
 //        System.out.println(fbManager.getSubtasks());
+    }
+
+    public static void fileBackedHttpServerUserStory() throws IOException {
+        TaskManager taskManager = Managers.getFileBackedTaskManager();
+        HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
+        httpTaskServer.start();
+    }
+
+
+    public static void inMemoryHttpServerUserStory() throws IOException {
+        TaskManager taskManager = Managers.getDefault();
+        HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
+        httpTaskServer.start();
     }
 }

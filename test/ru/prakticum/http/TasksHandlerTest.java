@@ -1,6 +1,9 @@
 package ru.prakticum.http;
 
-import org.junit.jupiter.api.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import ru.prakticum.tasks.Task;
 
 import java.io.IOException;
@@ -19,7 +22,10 @@ public class TasksHandlerTest extends InitHandlers {
         Integer taskId = taskManager.getTasks().getFirst().getId();
         request = HttpRequest.newBuilder(uri.resolve("./tasks/" + taskId)).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        Task taskFromResponse = gson.fromJson(jsonElement, Task.class);
         Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(task.getDescription(), taskFromResponse.getDescription());
     }
 
     @Test
@@ -41,27 +47,31 @@ public class TasksHandlerTest extends InitHandlers {
                 .POST(HttpRequest.BodyPublishers.ofString(newTaskJson, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        Task taskFromResponse = gson.fromJson(jsonElement, Task.class);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(1, taskManager.getTasks().size());
+        Assertions.assertEquals(newTask.getDescription(), taskFromResponse.getDescription());
     }
 
     @Test
     public void taskUpdateIs201() throws IOException, InterruptedException {
         taskManager.createTask(task);
         Assertions.assertEquals(1, taskManager.getTasks().size());
-        Task task1 = taskManager.getTaskById(task.getId());
-        task1.setDescription("my new desc");
-        String task1Json = gson.toJson(task1);
+        Task newTask = taskManager.getTaskById(task.getId());
+        newTask.setDescription("my new desc");
+        String task1Json = gson.toJson(newTask);
         request = HttpRequest.newBuilder(uri.resolve("./tasks"))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(task1Json, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        Task taskFromResponse = gson.fromJson(jsonElement, Task.class);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(1, taskManager.getTasks().size());
-
-
+        Assertions.assertEquals(newTask.getDescription(), taskFromResponse.getDescription());
     }
 
     @Test
@@ -92,7 +102,5 @@ public class TasksHandlerTest extends InitHandlers {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertEquals(0, taskManager.getTasks().size());
-
-
     }
 }

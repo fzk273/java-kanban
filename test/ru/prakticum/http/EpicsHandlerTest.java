@@ -1,13 +1,18 @@
 package ru.prakticum.http;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class EpicsHandlerTest extends InitHandlers {
 
@@ -18,7 +23,11 @@ public class EpicsHandlerTest extends InitHandlers {
         Integer epicId = taskManager.getEpics().getFirst().getId();
         request = HttpRequest.newBuilder(uri.resolve("./epics/" + epicId)).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        Epic epicFromResponse = gson.fromJson(jsonElement, Epic.class);
         Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(epic.getDescription(), epicFromResponse.getDescription());
+
     }
 
     @Test
@@ -39,8 +48,11 @@ public class EpicsHandlerTest extends InitHandlers {
                 .POST(HttpRequest.BodyPublishers.ofString(epicJson, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        Epic epicFromResponse = gson.fromJson(jsonElement, Epic.class);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(1, taskManager.getEpics().size());
+        Assertions.assertEquals(epic.getDescription(), epicFromResponse.getDescription());
     }
 
     @Test
@@ -61,9 +73,12 @@ public class EpicsHandlerTest extends InitHandlers {
 
     @Test
     public void epicSubtasksIs200() throws IOException, InterruptedException {
+
         taskManager.createEpic(epic);
         Integer epicId = taskManager.getEpics().getFirst().getId();
         SubTask newSubtask = new SubTask("name", "desc", epicId);
+        newSubtask.setDuration(Duration.ofHours(1));
+        newSubtask.setStartTime(LocalDateTime.now());
         taskManager.createSubtask(newSubtask);
         request = HttpRequest.newBuilder(uri.resolve("./epics/" + epicId + "/subtasks")).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

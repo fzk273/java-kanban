@@ -1,6 +1,10 @@
 package ru.prakticum.http;
 
-import org.junit.jupiter.api.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ru.prakticum.tasks.Epic;
 import ru.prakticum.tasks.SubTask;
 
@@ -12,18 +16,18 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class SubTasksHandlerTest extends InitHandlers {
-    private SubTask subTask1;
-    private String subTask1Json;
+    private SubTask subtaskFromInit;
+    private String subtaskFromInitJson;
 
     @BeforeEach
     public void init() {
         super.init();
         taskManager.createEpic(epic);
         Integer epicId = taskManager.getEpics().getFirst().getId();
-        subTask1 = new SubTask("subtask1", "subdesc1", epicId);
-        subTask1.setDuration(Duration.ofHours(5));
-        subTask1.setStartTime(LocalDateTime.now().plusHours(2));
-        subTask1Json = gson.toJson(subTask1);
+        subtaskFromInit = new SubTask("subtask1", "subdesc1", epicId);
+        subtaskFromInit.setDuration(Duration.ofHours(5));
+        subtaskFromInit.setStartTime(LocalDateTime.now().plusHours(2));
+        subtaskFromInitJson = gson.toJson(subtaskFromInit);
     }
 
     @Test
@@ -36,7 +40,11 @@ public class SubTasksHandlerTest extends InitHandlers {
         Integer subtaskId = taskManager.getSubtasks().getFirst().getId();
         request = HttpRequest.newBuilder(uri.resolve("./subtasks/" + subtaskId)).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        SubTask subtaskFromResponse = gson.fromJson(jsonElement, SubTask.class);
         Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(newSubtask.getDescription(), subtaskFromResponse.getDescription());
+
     }
 
     @Test
@@ -52,29 +60,35 @@ public class SubTasksHandlerTest extends InitHandlers {
         request = HttpRequest.newBuilder(uri.resolve("./subtasks"))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(subTask1Json, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(subtaskFromInitJson, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        SubTask subtaskFromResponse = gson.fromJson(jsonElement, SubTask.class);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(1, taskManager.getSubtasks().size());
+        Assertions.assertEquals(subtaskFromInit.getDescription(), subtaskFromResponse.getDescription());
 
     }
 
     @Test
     public void subTaskUpdateIs201() throws IOException, InterruptedException {
-        taskManager.createSubtask(subTask1);
+        taskManager.createSubtask(subtaskFromInit);
         Assertions.assertEquals(1, taskManager.getSubtasks().size());
-        SubTask subTask2 = taskManager.getSubtaskById(subTask1.getId());
-        subTask2.setDescription("my new desc");
-        String subTask2Json = gson.toJson(subTask2);
+        SubTask newSubtask = taskManager.getSubtaskById(subtaskFromInit.getId());
+        newSubtask.setDescription("my new desc");
+        String newSubtaskJson = gson.toJson(newSubtask);
         request = HttpRequest.newBuilder(uri.resolve("./subtasks"))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(subTask2Json, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(newSubtaskJson, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonElement jsonElement = JsonParser.parseString(JsonParser.parseString(response.body()).getAsString());
+        SubTask subtaskFromResponse = gson.fromJson(jsonElement, SubTask.class);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(1, taskManager.getSubtasks().size());
+        Assertions.assertEquals(newSubtask.getDescription(), subtaskFromResponse.getDescription());
 
     }
 
@@ -83,7 +97,7 @@ public class SubTasksHandlerTest extends InitHandlers {
         request = HttpRequest.newBuilder(uri.resolve("./subtasks"))
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(subTask1Json, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(subtaskFromInitJson, StandardCharsets.UTF_8))
                 .build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

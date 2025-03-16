@@ -2,6 +2,7 @@ package ru.prakticum.managers;
 
 import ru.prakticum.enums.Status;
 import ru.prakticum.enums.TaskType;
+import ru.prakticum.exceptions.TaskOverlappingException;
 import ru.prakticum.interfaces.HistoryManager;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
@@ -34,7 +35,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task createTask(Task task) {
         if (taskTimelineValidation(task)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         task.setId(counter);
         tasks.put(counter, task);
@@ -48,7 +49,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask createSubtask(SubTask subTask) {
         if (taskTimelineValidation(subTask)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         Epic epic = epics.get(subTask.getEpicId());
         if (epic == null) {
@@ -188,7 +189,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateTask(Task task) {
         sortedTasks.remove(tasks.get(task.getId()));
         if (taskTimelineValidation(task)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         if (taskStartAndEndTimeIsSet(task)) {
             sortedTasks.add(task);
@@ -200,7 +201,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubtask(SubTask subtask) {
         sortedTasks.remove(subtasks.get(subtask.getId()));
         if (taskTimelineValidation(subtask)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         subtasks.put(subtask.getId(), subtask);
         if (taskStartAndEndTimeIsSet(subtask)) {

@@ -2,6 +2,7 @@ package ru.prakticum.http;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,6 +37,7 @@ public class InitHandlers {
     protected URI uri;
     protected HttpRequest request;
     protected HttpClient client;
+    protected JsonElement jsonElement;
 
     @BeforeAll
     public static void initServer() throws IOException {

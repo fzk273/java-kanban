@@ -1,6 +1,7 @@
 package ru.prakticum.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
+import ru.prakticum.exceptions.TaskOverlappingException;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.SubTask;
 
@@ -31,7 +32,7 @@ public class SubtasksHandler extends BaseHttpHandler {
                         taskManager.updateSubtask(subTask);
                         sendText(httpExchange, gson.toJson(subTask), 201);
                     }
-                } catch (IllegalArgumentException exception) {
+                } catch (TaskOverlappingException exception) {
                     sendText(httpExchange, "subtask is ovelapping", 406);
 
                 }
@@ -39,9 +40,9 @@ public class SubtasksHandler extends BaseHttpHandler {
             case "GET":
                 if (splittedPath.length > 2) {
                     Integer id = Integer.parseInt(splittedPath[2]);
-                    SubTask subTask1 = taskManager.getSubtaskById(id);
-                    if (subTask1 != null) {
-                        sendText(httpExchange, gson.toJson(subTask1), 200);
+                    SubTask subtaskById = taskManager.getSubtaskById(id);
+                    if (subtaskById != null) {
+                        sendText(httpExchange, gson.toJson(subtaskById), 200);
                     } else {
                         sendText(httpExchange, "there is no subtask with id: " + id, 404);
                     }

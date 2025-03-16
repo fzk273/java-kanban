@@ -56,18 +56,18 @@ public class EpicsHandler extends BaseHttpHandler {
             String epicsJson = gson.toJson(taskManager.getEpics());
             sendText(httpExchange, epicsJson, 200);
         } else if (splitPath.length == 3) {
-            Epic epic1 = taskManager.getEpicById(epicId);
-            if (epic1 != null) {
-                sendText(httpExchange, gson.toJson(epic1), 200);
+            Epic newEpic = taskManager.getEpicById(epicId);
+            if (newEpic != null) {
+                sendText(httpExchange, gson.toJson(newEpic), 200);
             } else {
                 sendText(httpExchange, "there is no epic with id: " + epicId, 404);
             }
         } else if (splitPath.length == 4 && isSubtasksInPath) {
-            if (taskManager.getEpicById(epicId) != null) {
+            try {
                 String epicSubtasks = gson.toJson(taskManager.getEpicSubtasks(taskManager.getEpicById(epicId)));
                 sendText(httpExchange, epicSubtasks, 200);
-            } else {
-                sendText(httpExchange, "there is epic with id: " + epicId, 404);
+            } catch (NullPointerException e) {
+                sendText(httpExchange, "there is no epic with id: " + epicId, 404);
             }
         }
 

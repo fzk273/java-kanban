@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class BaseHttpHandler implements HttpHandler {
+public abstract class BaseHttpHandler implements HttpHandler {
     protected Gson gson;
     protected TaskManager taskManager;
 
@@ -31,12 +31,8 @@ public class BaseHttpHandler implements HttpHandler {
         byte[] resp = jsonResponce.getBytes(StandardCharsets.UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
         h.sendResponseHeaders(responseCode, resp.length);
-        //TODO если в случае ошибки отправлять без боди (как в комменте на пр) тогда запрос не возвращается корректно
         h.getResponseBody().write(resp);
         h.close();
     }
 
-    @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-    }
 }

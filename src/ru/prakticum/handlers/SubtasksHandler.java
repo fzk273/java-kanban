@@ -31,7 +31,7 @@ public class SubtasksHandler extends BaseHttpHandler {
                         taskManager.updateSubtask(subTask);
                         sendText(httpExchange, gson.toJson(subTask), 201);
                     }
-                } catch (IllegalArgumentException exception){
+                } catch (IllegalArgumentException exception) {
                     sendText(httpExchange, "subtask is ovelapping", 406);
 
                 }

@@ -32,7 +32,7 @@ public class TasksHandler extends BaseHttpHandler {
                         taskManager.updateTask(task);
                         sendText(httpExchange, gson.toJson(task), 201);
                     }
-                } catch (IllegalArgumentException exception){
+                } catch (IllegalArgumentException exception) {
                     sendText(httpExchange, "task is ovelapping", 406);
                 }
 

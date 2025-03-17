@@ -2,6 +2,7 @@ package ru.prakticum.managers;
 
 import ru.prakticum.enums.Status;
 import ru.prakticum.enums.TaskType;
+import ru.prakticum.exceptions.TaskOverlappingException;
 import ru.prakticum.interfaces.HistoryManager;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Epic;
@@ -34,7 +35,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task createTask(Task task) {
         if (taskTimelineValidation(task)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         task.setId(counter);
         tasks.put(counter, task);
@@ -48,7 +49,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask createSubtask(SubTask subTask) {
         if (taskTimelineValidation(subTask)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         Epic epic = epics.get(subTask.getEpicId());
         if (epic == null) {
@@ -188,7 +189,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateTask(Task task) {
         sortedTasks.remove(tasks.get(task.getId()));
         if (taskTimelineValidation(task)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         if (taskStartAndEndTimeIsSet(task)) {
             sortedTasks.add(task);
@@ -200,7 +201,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubtask(SubTask subtask) {
         sortedTasks.remove(subtasks.get(subtask.getId()));
         if (taskTimelineValidation(subtask)) {
-            throw new IllegalArgumentException("Ошибка: время выполнения задачи пересекается с другой задачей");
+            throw new TaskOverlappingException("Ошибка: время выполнения задачи пересекается с другой задачей");
         }
         subtasks.put(subtask.getId(), subtask);
         if (taskStartAndEndTimeIsSet(subtask)) {
@@ -216,9 +217,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<SubTask> getEpicSubtasks(Epic epic) {
+    public ArrayList<SubTask> getEpicSubtasks(Integer epicId) {
         ArrayList<SubTask> epicsSubtasks = new ArrayList<>();
-        ArrayList<Integer> epicSubtasksIds = epic.getSubtaskIds();
+        ArrayList<Integer> epicSubtasksIds = epics.get(epicId).getSubtaskIds();
         for (Integer subtaskId : epicSubtasksIds) {
             epicsSubtasks.add(subtasks.get(subtaskId));
         }
@@ -226,7 +227,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateEpicStatus(Epic epic) {
-        ArrayList<SubTask> epicsSubtasks = getEpicSubtasks(epic);
+        ArrayList<SubTask> epicsSubtasks = getEpicSubtasks(epic.getId());
         if (epicsSubtasks.isEmpty()) {
             epic.setStatus(Status.NEW);
         } else {
@@ -252,13 +253,13 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     protected void updateEpicDateTimeAndDuration(Epic epic) {
-        LocalDateTime earlistSubtask = getEpicSubtasks(epic).stream()
+        LocalDateTime earlistSubtask = getEpicSubtasks(epic.getId()).stream()
                 .min(Comparator.comparing(Task::getStartTime)).get().getStartTime();
-        LocalDateTime latestSubtask = getEpicSubtasks(epic).stream()
+        LocalDateTime latestSubtask = getEpicSubtasks(epic.getId()).stream()
                 .max(Comparator.comparing(Task::getEndTime)).get().getStartTime();
         epic.setStartTime(earlistSubtask);
         epic.setEndTime(latestSubtask);
-        Duration epicDuration = getEpicSubtasks(epic).stream()
+        Duration epicDuration = getEpicSubtasks(epic.getId()).stream()
                 .map(SubTask::getDuration)
                 .filter(Objects::nonNull)
                 .reduce(Duration.ZERO, Duration::plus);

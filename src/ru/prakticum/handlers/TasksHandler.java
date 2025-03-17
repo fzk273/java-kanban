@@ -1,6 +1,7 @@
 package ru.prakticum.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
+import ru.prakticum.exceptions.TaskOverlappingException;
 import ru.prakticum.interfaces.TaskManager;
 import ru.prakticum.tasks.Task;
 
@@ -32,7 +33,7 @@ public class TasksHandler extends BaseHttpHandler {
                         taskManager.updateTask(task);
                         sendText(httpExchange, gson.toJson(task), 201);
                     }
-                } catch (IllegalArgumentException exception) {
+                } catch (TaskOverlappingException exception) {
                     sendText(httpExchange, "task is ovelapping", 406);
                 }
 

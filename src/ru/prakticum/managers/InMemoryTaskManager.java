@@ -217,9 +217,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<SubTask> getEpicSubtasks(Epic epic) {
+    public ArrayList<SubTask> getEpicSubtasks(Integer epicId) {
         ArrayList<SubTask> epicsSubtasks = new ArrayList<>();
-        ArrayList<Integer> epicSubtasksIds = epic.getSubtaskIds();
+        ArrayList<Integer> epicSubtasksIds = epics.get(epicId).getSubtaskIds();
         for (Integer subtaskId : epicSubtasksIds) {
             epicsSubtasks.add(subtasks.get(subtaskId));
         }
@@ -227,7 +227,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateEpicStatus(Epic epic) {
-        ArrayList<SubTask> epicsSubtasks = getEpicSubtasks(epic);
+        ArrayList<SubTask> epicsSubtasks = getEpicSubtasks(epic.getId());
         if (epicsSubtasks.isEmpty()) {
             epic.setStatus(Status.NEW);
         } else {
@@ -253,13 +253,13 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     protected void updateEpicDateTimeAndDuration(Epic epic) {
-        LocalDateTime earlistSubtask = getEpicSubtasks(epic).stream()
+        LocalDateTime earlistSubtask = getEpicSubtasks(epic.getId()).stream()
                 .min(Comparator.comparing(Task::getStartTime)).get().getStartTime();
-        LocalDateTime latestSubtask = getEpicSubtasks(epic).stream()
+        LocalDateTime latestSubtask = getEpicSubtasks(epic.getId()).stream()
                 .max(Comparator.comparing(Task::getEndTime)).get().getStartTime();
         epic.setStartTime(earlistSubtask);
         epic.setEndTime(latestSubtask);
-        Duration epicDuration = getEpicSubtasks(epic).stream()
+        Duration epicDuration = getEpicSubtasks(epic.getId()).stream()
                 .map(SubTask::getDuration)
                 .filter(Objects::nonNull)
                 .reduce(Duration.ZERO, Duration::plus);

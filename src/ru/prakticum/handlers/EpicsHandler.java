@@ -43,13 +43,15 @@ public class EpicsHandler extends BaseHttpHandler {
     }
 
     public void getMethod(HttpExchange httpExchange, String[] splitPath) throws IOException {
-        Integer epicId = null;
+        Integer epicId;
         boolean isSubtasksInPath = false;
         if (splitPath.length > 2) {
             epicId = Integer.parseInt(splitPath[2]);
             if (splitPath.length > 3) {
                 isSubtasksInPath = splitPath[3].equals("subtasks");
             }
+        } else {
+            epicId = null;
         }
 
         if (splitPath.length == 2) {
@@ -63,10 +65,11 @@ public class EpicsHandler extends BaseHttpHandler {
                 sendText(httpExchange, "there is no epic with id: " + epicId, 404);
             }
         } else if (splitPath.length == 4 && isSubtasksInPath) {
-            try {
-                String epicSubtasks = gson.toJson(taskManager.getEpicSubtasks(taskManager.getEpicById(epicId)));
+            boolean epicExists = taskManager.getEpics().stream().anyMatch(epic -> epic.getId().equals(epicId));
+            if (epicExists) {
+                String epicSubtasks = gson.toJson(taskManager.getEpicSubtasks(epicId));
                 sendText(httpExchange, epicSubtasks, 200);
-            } catch (NullPointerException e) {
+            } else {
                 sendText(httpExchange, "there is no epic with id: " + epicId, 404);
             }
         }
